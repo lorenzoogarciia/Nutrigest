@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.NutriGest" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/red_intense</item>
+    </style>
+
+    <style name="Theme.NutriGest" parent="Base.Theme.NutriGest" />
+
+    <style name="SplashTheme" parent="Base.Theme.NutriGest">
+        <item name="android:windowBackground">@color/red_intense</item>
+    </style>
+</resources>
