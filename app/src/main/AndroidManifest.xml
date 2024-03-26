@@ -15,6 +15,12 @@
         android:theme="@style/Theme.NutriGest"
         tools:targetApi="31">
         <activity
+            android:name=".MisDietasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PerfilActivity"
+            android:exported="false" />
+        <activity
             android:name=".NutriHomeActivity"
             android:exported="false" />
         <activity
@@ -24,7 +30,7 @@
             android:name=".RegistroActivity"
             android:exported="false" />
         <activity
-            android:name=".Loginctivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>

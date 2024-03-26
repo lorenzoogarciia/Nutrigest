@@ -10,4 +10,7 @@
     <style name="SplashTheme" parent="Base.Theme.NutriGest">
         <item name="android:windowBackground">@color/red_intense</item>
     </style>
+
+    <item name="windowActionBar" type="bool">false</item>
+    <item name="windowNoTitle" type="bool">true</item>
 </resources>

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NutriGest</string>
+    <string name="navigationdrawer_home_open">Open</string>
+    <string name="navigationdrawer_home_close">Close</string>
+    <string name="navigationdrawer_nutrihome_open">Open</string>
+    <string name="navigationdrawer_nutrihome_close">Close</string>
 </resources>

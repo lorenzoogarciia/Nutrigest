@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class Loginctivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
     //Instancia de la BBDD
     val db = FirebaseFirestore.getInstance()
 
