@@ -22,6 +22,8 @@
             android:id="@+id/txt_nutrihome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
             android:text="Bienvenido al Home de Nutricionistas"
             tools:ignore="HardcodedText" />
     </LinearLayout>

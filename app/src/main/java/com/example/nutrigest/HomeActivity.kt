@@ -21,7 +21,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
 
     //Instancia de la Base de Datos
-    //private val db = FirebaseFirestore.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +46,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val email: String?  = bundle?.getString("mail")
 
         setup(email.toString())
+        actualizarDatosUsuarios(email.toString())
 
     }
 
@@ -107,6 +108,43 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //Función que actualiza los datos del usuario
+    @SuppressLint("SetTextI18n")
+    private fun actualizarDatosUsuarios(email: String){
+        val mail = email
+        val docRef = db.collection("usuarios").document(mail)
+
+        try {
+
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    //Variables que recogen los datos de la base de datos
+                    val nombre = document.getString("nombre")
+                    val mail = document.getString("mail")
+
+                    //Variables que actualizan los datos en la interfaz del Navheader
+                    val nombreUI = findViewById<TextView>(R.id.navheader_usuarios_nombre)
+                    val emailUI = findViewById<TextView>(R.id.navheader_usuarios_email)
+
+                    //Actualización de los datos en la interfaz del navheader
+                    nombreUI.text = nombre
+                    emailUI.text = mail
+
+                    //Actualización de los datos en la interfaz del HomeActivity
+                    val txtHome = findViewById<TextView>(R.id.txt_home)
+                    txtHome.text = "¡Bienvenido ${nombre}! "
+                } else {
+                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+            }
+        }catch (FireBaseException: Exception){
+            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
 }

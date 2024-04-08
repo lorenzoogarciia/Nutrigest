@@ -1,0 +1,11 @@
+if (txtMail.text.isNotEmpty() && txtPasswd.text.isNotEmpty()){
+                FirebaseAuth.getInstance()
+                    .createUserWithEmailAndPassword(txtMail.text.toString(),
+                        txtPasswd.text.toString()).addOnCompleteListener {
+                            if(it.isSuccessful){
+                                showHome(it.result?.user?.email ?: "", ProviderType.BASIC)
+                            }else{
+                                showAlert()
+                            }
+                    }
+            }

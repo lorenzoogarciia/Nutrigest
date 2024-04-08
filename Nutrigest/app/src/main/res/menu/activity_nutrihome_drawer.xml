@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group>
+        <item android:id="@+id/nav_nutrihome_one"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="Inicio"
+            tools:ignore="HardcodedText" />
+
+        <item android:id="@+id/nav_nutrihome_two"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="Perfil"
+            tools:ignore="HardcodedText" />
+
+        <item android:id="@+id/nav_nutrihome_three"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="Dietas"
+            tools:ignore="HardcodedText" />
+
+        <item android:id="@+id/nav_nutrihome_four"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="Clientes"
+            tools:ignore="HardcodedText" />
+
+        <item android:id="@+id/nav_nutrihome_five"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="Cerrar Sesión"
+            tools:ignore="HardcodedText" />
+    </group>
+
+</menu>

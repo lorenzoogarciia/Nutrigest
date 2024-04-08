@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drawer_nutridietas"
+    tools:openDrawer="start"
+    tools:context=".NutriDietasActivity">
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        android:layout_marginTop="100dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="1dp"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/txt_nutridietas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aquí saldrán las dietas creadas por el nutricionista"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <include
+        layout="@layout/nutridietas_bar"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view_nutridietas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/navheader_nutricionistas"
+        app:menu="@menu/activity_nutrihome_drawer"/>
+</androidx.drawerlayout.widget.DrawerLayout>

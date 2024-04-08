@@ -4,4 +4,13 @@
     <string name="navigationdrawer_home_close">Close</string>
     <string name="navigationdrawer_nutrihome_open">Open</string>
     <string name="navigationdrawer_nutrihome_close">Close</string>
+
+    <string-array name="opciones_actividad">
+            <item>Sedentario</item>
+            <item>Ligera</item>
+            <item>Moderada</item>
+            <item>Intesa</item>
+            <item>Muy Intensa</item>
+    </string-array>
+
 </resources>

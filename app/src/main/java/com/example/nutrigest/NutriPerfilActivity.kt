@@ -14,11 +14,15 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
 
 class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+
+    private val db = FirebaseFirestore.getInstance()
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +44,15 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
-        val txt_perfilnutricionistas = findViewById<TextView>(R.id.txt_perfilnutricionistas)
-
+        setup(mail.toString())
     }
 
+    //Función que inicializa todos los elementos y funciones de la Activity
+    private fun setup(email: String?){
+        actualizarDatosUsuarios(email.toString())
+    }
+
+    //Función que maneja el comportamiento de los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -103,5 +112,40 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //Función que actualiza los datos de la UI
+    private fun actualizarDatosUsuarios(email: String){
+        val mail = email
+        val docRef = db.collection("nutricionistas").document(mail)
+
+        try {
+
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    //Variables que recogen los datos de la base de datos
+                    val nombre = document.getString("nombre")
+                    val mail = document.getString("mail")
+
+                    //Variables que actualizan los datos en la interfaz del Navheader
+                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
+                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
+
+                    //Actualización de los datos en la interfaz del navheader
+                    nombreUI.text = nombre
+                    emailUI.text = mail
+
+                    //Actualización de los datos en la interfaz del HomeActivity
+                    val txtNutriPerfil = findViewById<TextView>(R.id.txt_perfilnutricionistas)
+                    txtNutriPerfil.text = "¡Bienvenido a tu perfil ${nombre}! "
+                } else {
+                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+            }
+        }catch (FireBaseException: Exception){
+            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 }

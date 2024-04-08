@@ -21,6 +21,8 @@
             android:id="@+id/txt_perfilnutricionistas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
             android:text="Bienvenido a tu perfil Nutricionista"
             tools:ignore="HardcodedText" />
     </LinearLayout>

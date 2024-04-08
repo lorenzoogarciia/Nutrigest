@@ -10,14 +10,23 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.nutrigest.clases.Usuarios
+import com.example.nutrigest.clases.UsuariosAdapter
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var usuariosAdapter: UsuariosAdapter
+    private lateinit var recyclerView: RecyclerView
+
+    private val db = FirebaseFirestore.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_clientes)
@@ -38,7 +47,12 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val bundle = intent.extras
         val email: String?  = bundle?.getString("mail")
 
-        val txt_clientes = findViewById<TextView>(R.id.txt_clientes)
+        setup(email.toString())
+    }
+
+    private fun setup(email: String?){
+        actualizarDatosUsuarios(email.toString())
+        mostrarClientes()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -100,5 +114,56 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun actualizarDatosUsuarios(email: String){
+        val mail = email
+        val docRef = db.collection("nutricionistas").document(mail)
+
+        try {
+
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    //Variables que recogen los datos de la base de datos
+                    val nombre = document.getString("nombre")
+                    val mail = document.getString("mail")
+
+                    //Variables que actualizan los datos en la interfaz del Navheader
+                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
+                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
+
+                    //Actualización de los datos en la interfaz del navheader
+                    nombreUI.text = nombre
+                    emailUI.text = mail
+
+                    //Actualización de los datos en la interfaz del HomeActivity
+                    val txtClientes = findViewById<TextView>(R.id.txt_clientes)
+                    txtClientes.text = "¡Bienvenido ${nombre} estos son tus clientes! "
+                } else {
+                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+            }
+        }catch (FireBaseException: Exception){
+            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    //Función que muestra los clientes en la interfaz
+    private fun mostrarClientes() {
+        db.collection("usuarios").get().addOnSuccessListener { result ->
+            val usuariosList = ArrayList<Usuarios>()
+            for (document in result) {
+                val usuario = document.toObject(Usuarios::class.java)
+                usuariosList.add(usuario)
+            }
+            usuariosAdapter = UsuariosAdapter(usuariosList)
+            recyclerView = findViewById(R.id.recyclerView_Clientes)
+            recyclerView.layoutManager = LinearLayoutManager(this)
+            recyclerView.adapter = usuariosAdapter
+        }.addOnFailureListener { exception ->
+            Toast.makeText(this, "Error al obtener los clientes: ${exception.message}",Toast.LENGTH_SHORT).show()
+        }
     }
 }

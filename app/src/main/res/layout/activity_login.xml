@@ -40,7 +40,7 @@
         <EditText
             android:id="@+id/cmp_mail"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="50dp"
             android:background="@color/black"
             android:ems="10"
             android:hint="Email"
@@ -52,14 +52,15 @@
         <EditText
             android:id="@+id/cmp_passwd"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="50dp"
             android:background="@color/black"
             android:ems="10"
             android:hint="Contraseña"
             android:inputType="textPassword"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="match_parent"

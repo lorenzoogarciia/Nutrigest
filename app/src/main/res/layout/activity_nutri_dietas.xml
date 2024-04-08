@@ -22,6 +22,8 @@
             android:id="@+id/txt_nutridietas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
             android:text="Aquí saldrán las dietas creadas por el nutricionista"
             tools:ignore="HardcodedText" />
     </LinearLayout>

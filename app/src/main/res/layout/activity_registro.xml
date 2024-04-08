@@ -46,11 +46,81 @@
             android:layout_height="8dp" />
 
         <EditText
+            android:id="@+id/cmp_nombre"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Nombre y Apellidos"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <EditText
+            android:id="@+id/cmp_edad"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Edad"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <EditText
+            android:id="@+id/cmp_peso"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Peso Actual"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <EditText
+            android:id="@+id/cmp_peso_objetivo"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Peso Objetivo"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <EditText
+            android:id="@+id/cmp_altura"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Altura (cm)"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <EditText
             android:id="@+id/cmp_address"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@color/black"
-            android:hint="Calle, número, piso..."
+            android:hint="Dirección Completa"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             tools:ignore="HardcodedText" />
@@ -66,7 +136,19 @@
             android:background="@color/black"
             android:hint="Teléfono"
             android:textColor="@color/white"
-            android:textColorHint="@color/white" />
+            android:textColorHint="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <Spinner
+            android:id="@+id/cmp_actividad"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:textColor="@color/white"/>
 
         <Space
             android:layout_width="match_parent"
@@ -81,7 +163,8 @@
                 android:id="@+id/btn_guardar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Guardar" />
+                android:text="Guardar"
+                tools:ignore="HardcodedText" />
 
             <Space
                 android:layout_width="match_parent"
@@ -97,10 +180,11 @@
 
             <Button
                 android:id="@+id/btn_volver"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Regresar" />
+                android:text="Regresar"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
