@@ -7,13 +7,14 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.clases.Usuarios
-import com.example.nutrigest.clases.UsuariosAdapter
+import com.example.nutrigest.clases.UsuariosControlador
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -22,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
-    private lateinit var usuariosAdapter: UsuariosAdapter
+    private lateinit var usuariosControlador: UsuariosControlador
     private lateinit var recyclerView: RecyclerView
 
     private val db = FirebaseFirestore.getInstance()
@@ -51,8 +52,17 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     private fun setup(email: String?){
-        actualizarDatosUsuarios(email.toString())
-        mostrarClientes()
+        try {
+            actualizarDatosUsuarios(email.toString())
+        }catch (e: Exception){
+            Toast.makeText(this, "Error al actualizar datos de usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+
+        try {
+            mostrarClientes()
+        }catch (e: Exception){
+            showAlert("Error al mostrar los clientes: ${e.message}")
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -158,12 +168,23 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 val usuario = document.toObject(Usuarios::class.java)
                 usuariosList.add(usuario)
             }
-            usuariosAdapter = UsuariosAdapter(usuariosList)
+            usuariosControlador = UsuariosControlador(usuariosList)
+            // Mueve estas líneas aquí, después de que usuariosControlador ha sido inicializado.
             recyclerView = findViewById(R.id.recyclerView_Clientes)
             recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = usuariosAdapter
+            recyclerView.adapter = usuariosControlador
         }.addOnFailureListener { exception ->
-            Toast.makeText(this, "Error al obtener los clientes: ${exception.message}",Toast.LENGTH_SHORT).show()
+            showAlert("Error al mostrar los clientes: ${exception.message}")
         }
+    }
+
+    //Función que muestra los mensajes de alerta
+    private fun showAlert(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 }

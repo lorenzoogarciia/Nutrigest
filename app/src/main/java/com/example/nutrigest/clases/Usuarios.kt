@@ -3,17 +3,20 @@ package com.example.nutrigest.clases
 import android.widget.Toast
 
 class Usuarios (
-    val nombre: String,
-    val edad: Int,
-    val direccion: String,
-    val altura: Double, // Altura en metros
-    val mail: String,
-    val peso: Double, // Peso en kilogramos
-    val pesoObjetivo: Double, // Peso objetivo en kilogramos
-    val telefono: String,
-    val actividad: String,
-    val sexo: String)
+    var nombre: String = "",
+    var edad: Int = 0,
+    var address: String = "",
+    var altura: Double = 0.0, // Altura en centímetros
+    var mail: String = "",
+    var peso: Double = 0.0, // Peso en kilogramos
+    var pesoObjetivo: Double = 0.0, // Peso objetivo en kilogramos
+    var telefono: String = "",
+    var actividad: String = "",
+    var genero: String = "Null")
 {
+
+
+
     fun calcularIMC(): Double {
         return peso / (altura * altura)
     }
@@ -65,7 +68,7 @@ class Usuarios (
 
 
     override fun toString(): String {
-        return "Usuario(nombre='$nombre', edad=$edad, dirección='$direccion', altura=$altura, mail='$mail'," +
-                " peso=$peso, pesoObjetivo=$pesoObjetivo, teléfono='$telefono', actividad='$actividad')"
+        return "Usuario(nombre='$nombre', edad=$edad, dirección='$address', altura=$altura, mail='$mail'," +
+                " peso=$peso, pesoObjetivo=$pesoObjetivo, teléfono='$telefono', actividad='$actividad', género='$genero')"
     }
 }

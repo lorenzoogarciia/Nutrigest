@@ -38,6 +38,7 @@ class RegistroActivity : AppCompatActivity() {
         val cmpAddress = findViewById<EditText>(R.id.cmp_address)
         val cmpTelefono = findViewById<EditText>(R.id.cmp_telefono)
         val spinnerActividad = findViewById<Spinner>(R.id.cmp_actividad)
+        val spinnerGenero = findViewById<Spinner>(R.id.cmp_genero)
         val btnVolver = findViewById<Button>(R.id.btn_volver)
         val btnGuardar = findViewById<Button>(R.id.btn_guardar)
 
@@ -52,6 +53,17 @@ class RegistroActivity : AppCompatActivity() {
             spinnerActividad.adapter = adapter
         }
 
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.opciones_genero,
+            R.layout.spinner_genero
+        ).also { adapter ->
+            // Especificar el layout a usar cuando aparece la lista de opciones
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Aplicar el adaptador al spinner
+            spinnerGenero.adapter = adapter
+        }
+
 
         btnVolver.setOnClickListener {
             val loginIntent = Intent(this, LoginActivity::class.java)
@@ -60,6 +72,12 @@ class RegistroActivity : AppCompatActivity() {
 
         btnGuardar.setOnClickListener {
             try {
+                //Guardamos las variables que son datos numericos
+                val edad = cmpEdad.text.toString().toIntOrNull() ?: 0
+                val peso = cmpPeso.text.toString().toDoubleOrNull() ?: 0.0
+                val pesoObjetivo = cmpPesoObjetivo.text.toString().toDoubleOrNull() ?: 0.0
+                val altura = cmpAltura.text.toString().toDoubleOrNull() ?: 0.0
+
                 //Comprobamos que los campos Mail y Contraseña no estén vacíos
                 if (cmpMail.text.toString().isNotEmpty() && cmpContrasenia.text.toString().isNotEmpty()){
 
@@ -74,13 +92,14 @@ class RegistroActivity : AppCompatActivity() {
                                     hashMapOf(
                                         "mail" to cmpMail.text.toString(),
                                         "nombre" to cmpNombre.text.toString(),
-                                        "edad" to cmpEdad.text.toString(),
-                                        "peso" to cmpPeso.text.toString(),
-                                        "pesoObjetivo" to cmpPesoObjetivo.text.toString(),
-                                        "altura" to cmpAltura.text.toString(),
+                                        "edad" to edad,
+                                        "peso" to peso,
+                                        "pesoObjetivo" to pesoObjetivo,
+                                        "altura" to altura,
                                         "address" to cmpAddress.text.toString(),
                                         "telefono" to cmpTelefono.text.toString(),
-                                        "actividad" to spinnerActividad.selectedItem.toString()
+                                        "actividad" to spinnerActividad.selectedItem.toString(),
+                                        "genero" to spinnerGenero.selectedItem.toString()
                                     )
                                 )
                             }else{
