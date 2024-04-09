@@ -20,8 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Aquí saldrán los clientes"
-            android:textSize="20dp"
+            android:text="Clientes"
+            android:textSize="40dp"
             tools:ignore="HardcodedText" />
 
         <!-- RecyclerView para listar los clientes -->

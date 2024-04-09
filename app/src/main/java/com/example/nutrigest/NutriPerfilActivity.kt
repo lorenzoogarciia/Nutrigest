@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -90,7 +91,7 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    Toast.makeText(this, "Error al cerrar sesión: ${e.message}", Toast.LENGTH_SHORT).show()
+                    showAlert("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
@@ -139,13 +140,22 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     val txtNutriPerfil = findViewById<TextView>(R.id.txt_perfilnutricionistas)
                     txtNutriPerfil.text = "¡Bienvenido a tu perfil ${nombre}! "
                 } else {
-                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                    showAlert("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+               showAlert("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
         }
+    }
+
+    private fun showAlert(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 }

@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
@@ -90,7 +91,7 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    Toast.makeText(this, "Error al cerrar sesión: ${e.message}", Toast.LENGTH_SHORT).show()
+                   showAlert("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
@@ -136,15 +137,24 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
                     //Actualización de los datos en la interfaz del HomeActivity
                     val txtNutridietas = findViewById<TextView>(R.id.txt_nutridietas)
-                    txtNutridietas.text = "¡Bienvenido ${nombre} estos son las dietas creadas! "
+                    txtNutridietas.text = "¡Bienvenido ${nombre} estas son las dietas creadas! "
                 } else {
-                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                    showAlert("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+               showAlert("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
         }
+    }
+
+    private fun showAlert(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 }

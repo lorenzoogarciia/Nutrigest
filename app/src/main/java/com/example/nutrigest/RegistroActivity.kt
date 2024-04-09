@@ -111,7 +111,7 @@ class RegistroActivity : AppCompatActivity() {
                     showAlert("Por favor, rellene todos los campos")
                 }
             }catch (e: FirebaseAuthException){
-                e.printStackTrace()
+                showAlert("Error al registrar al usuario: ${e.message}")
             }
         }
     }

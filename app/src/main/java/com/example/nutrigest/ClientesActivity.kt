@@ -55,7 +55,7 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         try {
             actualizarDatosUsuarios(email.toString())
         }catch (e: Exception){
-            Toast.makeText(this, "Error al actualizar datos de usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+            showAlert("Error al actualizar datos de usuario: ${e.message}")
         }
 
         try {

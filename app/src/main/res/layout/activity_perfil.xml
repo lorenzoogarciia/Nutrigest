@@ -25,6 +25,12 @@
             android:gravity="center"
             android:text="Bienvenido a tu perfil Usuario"
             tools:ignore="HardcodedText" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_perfilusuarios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <include
