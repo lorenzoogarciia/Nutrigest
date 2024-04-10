@@ -1,70 +1,107 @@
 package com.example.nutrigest
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.nutrigest.clases.Usuarios
-import com.example.nutrigest.clases.UsuariosControlador
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    //Variables para la creación del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
-    private lateinit var usuariosControlador: UsuariosControlador
-    private lateinit var recyclerView: RecyclerView
 
+    //Instancia de la base de datos de Firebase
     private val db = FirebaseFirestore.getInstance()
-
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_clientes)
+        setContentView(R.layout.activity_alimentos)
 
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_clientes)
+        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_alimentos)
         setSupportActionBar(toolbar)
 
-        drawer = findViewById(R.id.drawer_clientes)
+        drawer = findViewById(R.id.drawer_alimentos)
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigationdrawer_nutrihome_open, R.string.navigationdrawer_nutrihome_close)
         drawer.addDrawerListener(toggle)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
 
-        val navigationView: NavigationView = findViewById(R.id.nav_view_clientes)
+        val navigationView: NavigationView = findViewById(R.id.nav_view_alimentos)
         navigationView.setNavigationItemSelectedListener(this)
 
         val bundle = intent.extras
-        val email: String?  = bundle?.getString("mail")
+        val mail: String?  = bundle?.getString("mail")
 
-        setup(email.toString())
+        setup(mail.toString())
     }
 
+    //Función que inicializa todos los elementos y funciones de la Activity
     private fun setup(email: String?){
-        try {
-            actualizarDatosUsuarios(email.toString())
-        }catch (e: Exception){
-            showAlert("Error al actualizar datos de usuario: ${e.message}")
-        }
+        actualizarDatosUsuarios(email.toString())
+    }
+
+    //Función que actualiza los datos de la UI
+    @SuppressLint("SetTextI18n")
+    private fun actualizarDatosUsuarios(mail: String){
+        val mail = mail
+        val docRef = db.collection("nutricionistas").document(mail)
 
         try {
-            mostrarClientes()
-        }catch (e: Exception){
-            showAlert("Error al mostrar los clientes: ${e.message}")
+
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    //Variables que recogen los datos de la base de datos
+                    val nombre = document.getString("nombre")
+                    val mail = document.getString("mail")
+
+                    //Variables que actualizan los datos en la interfaz del Navheader
+                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
+                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
+
+                    //Actualización de los datos en la interfaz del navheader
+                    nombreUI.text = nombre
+                    emailUI.text = mail
+
+                    //Actualización de los datos en la interfaz del HomeActivity
+                    val txtNutriPerfil = findViewById<TextView>(R.id.txt_alimentos)
+                    txtNutriPerfil.text = "¡Bienvenido a los alimentos creados ${nombre}! "
+                } else {
+                    showAlert("No se encontraron datos")
+                }
+            }.addOnFailureListener { exception ->
+                showAlert("Error al obtener datos: $exception")
+            }
+        }catch (FireBaseException: Exception){
+            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
+    private fun showAlert(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+    //Función que maneja la lógica de los elementos del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -91,14 +128,14 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 Toast.makeText(this, "Dietas", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_four -> {
+                val clientesIntent = Intent(this, ClientesActivity::class.java).apply {
+                    putExtra("mail", intent.getStringExtra("mail"))
+                }
+                startActivity(clientesIntent)
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_five -> {
-                val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
-                    putExtra("mail", intent.getStringExtra("mail"))
-                }
-                startActivity(alimentosIntent)
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
             }
@@ -133,66 +170,5 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun actualizarDatosUsuarios(email: String){
-        val mail = email
-        val docRef = db.collection("nutricionistas").document(mail)
-
-        try {
-
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
-                    //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
-
-                    //Variables que actualizan los datos en la interfaz del Navheader
-                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
-                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
-
-                    //Actualización de los datos en la interfaz del navheader
-                    nombreUI.text = nombre
-                    emailUI.text = mail
-
-                    //Actualización de los datos en la interfaz del HomeActivity
-                    val txtClientes = findViewById<TextView>(R.id.txt_clientes)
-                    txtClientes.text = "¡Bienvenido ${nombre}, estos son tus clientes! "
-                } else {
-                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
-            }
-        }catch (FireBaseException: Exception){
-            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    //Función que muestra los clientes en la interfaz
-    private fun mostrarClientes() {
-        db.collection("usuarios").get().addOnSuccessListener { result ->
-            val usuariosList = ArrayList<Usuarios>()
-            for (document in result) {
-                val usuario = document.toObject(Usuarios::class.java)
-                usuariosList.add(usuario)
-            }
-            usuariosControlador = UsuariosControlador(usuariosList)
-            recyclerView = findViewById(R.id.recyclerView_Clientes)
-            recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = usuariosControlador
-        }.addOnFailureListener { exception ->
-            showAlert("Error al mostrar los clientes: ${exception.message}")
-        }
-    }
-
-    //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Error")
-        builder.setMessage(mensaje)
-        builder.setPositiveButton("Aceptar", null)
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
     }
 }

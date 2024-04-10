@@ -12,16 +12,25 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.nutrigest.clases.Nutricionistas
+import com.example.nutrigest.clases.PerfilNutricionistasControlador
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    //Variables para el ReciclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var perfilNutricionistasControlador: PerfilNutricionistasControlador
 
+    //Variables para el Navigation Drawer
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
+    //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
 
     @SuppressLint("MissingInflatedId")
@@ -29,28 +38,45 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nutri_perfil)
 
+        // Configuración del Navigation Drawer
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_perfilnutricionistas)
         setSupportActionBar(toolbar)
 
+        // Configuración del Navigation Drawer
         drawer = findViewById(R.id.drawer_perfilnutricionistas)
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigationdrawer_nutrihome_open, R.string.navigationdrawer_nutrihome_close)
         drawer.addDrawerListener(toggle)
 
+        // Configuración del Navigation Drawer
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
 
+        // Configuración del Navigation Drawer
         val navigationView: NavigationView = findViewById(R.id.nav_view_perfilnutricionistas)
         navigationView.setNavigationItemSelectedListener(this)
 
+        // Recuperamos el email del usuario
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
+        //Llamada a la función setup
         setup(mail.toString())
     }
 
     //Función que inicializa todos los elementos y funciones de la Activity
     private fun setup(email: String?){
-        actualizarDatosUsuarios(email.toString())
+        //Llamada a las funciones que actualizan la UI y muestran los datos del Nutricionista
+        try {
+            actualizarDatosUsuarios(email.toString())
+        }catch (FireBaseException: Exception){
+            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+        }
+
+        try {
+            mostrarDatosNutricionista(email.toString())
+        }catch (FireBaseException: Exception){
+            showAlert("Error al Mostrar Datos del Nutricionista: ${FireBaseException.message}")
+        }
     }
 
     //Función que maneja el comportamiento de los botones del menú lateral
@@ -84,6 +110,15 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_five -> {
+                val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
+                    putExtra("mail", intent.getStringExtra("mail"))
+                }
+                startActivity(alimentosIntent)
+                drawer.closeDrawer(GravityCompat.START)
+                Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
+            }
+
+            R.id.nav_nutrihome_six -> {
                 try {
                     FirebaseAuth.getInstance().signOut()
                     val loginIntent = Intent(this, LoginActivity::class.java)
@@ -147,6 +182,46 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             }
         }catch (FireBaseException: Exception){
             showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
+        }
+    }
+
+    //Función que muestra los datos del Nutricionista
+    private fun mostrarDatosNutricionista(mail: String) {
+        val idNutricionista = mail
+        if (idNutricionista != null) {
+            // Inicialización de los datos del nutricionista
+            recyclerView = findViewById(R.id.recyclerView_perfilnutricionistas)
+            recyclerView.layoutManager = LinearLayoutManager(this)
+            perfilNutricionistasControlador = PerfilNutricionistasControlador(emptyList())
+            recyclerView.adapter = perfilNutricionistasControlador
+
+            try {
+                db.collection("nutricionistas").document(idNutricionista).get()
+                    .addOnSuccessListener { document ->
+                        val nutricionista = document.toObject(Nutricionistas::class.java)
+                        if (nutricionista != null) {
+                            val datosNutricionista = listOf(
+                                "Nombre: ${nutricionista.nombre}",
+                                "Mail: ${nutricionista.mail}"
+                            )
+                            // Actualiza los datos del adaptador después de inicializarlo.
+                            perfilNutricionistasControlador.actualizarDatos(datosNutricionista)
+
+                            // Actualizamos la línea que nos muestra el total de clientes en la interfaz
+                            db.collection("usuarios").get().addOnSuccessListener { usuarios ->
+                                val numClientesTextView = findViewById<TextView>(R.id.total_clientes)
+                                numClientesTextView.text = "Clientes Totales: ${usuarios.size()}"
+                            }
+                        } else {
+                            showAlert("No se encontraron datos")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        showAlert("Error al obtener los datos del usuario: ${e.message}")
+                    }
+            } catch (e: Exception) {
+                showAlert("Error al obtener los datos del usuario: ${e.message}")
+            }
         }
     }
 

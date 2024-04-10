@@ -3,10 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_perfilnutricionistas"
+    android:id="@+id/drawer_alimentos"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NutriPerfilActivity">
+    tools:context=".AlimentosActivity">
 
     <LinearLayout
         android:layout_width="409dp"
@@ -18,40 +18,22 @@
         tools:ignore="MissingConstraints">
 
         <TextView
-            android:id="@+id/txt_perfilnutricionistas"
+            android:id="@+id/txt_alimentos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:gravity="center"
-            android:text="Bienvenido a tu perfil Nutricionista"
-            android:textStyle="bold"
+            android:text="Bienvenido a tus Alimentos"
             tools:ignore="HardcodedText,SpUsage" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView_perfilnutricionistas"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"/>
-
-        <TextView
-            android:id="@+id/total_clientes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
-            android:layout_marginLeft="7dp"
-            android:text="Total de clientes: 0"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText"/>
     </LinearLayout>
 
     <include
-        layout="@layout/perfilnutricionistas_bar"
+        layout="@layout/alimentos_bar"
         android:layout_height="match_parent"
         android:layout_width="match_parent"/>
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view_perfilnutricionistas"
+        android:id="@+id/nav_view_alimentos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="start"

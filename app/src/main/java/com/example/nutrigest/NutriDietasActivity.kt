@@ -84,6 +84,15 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_five -> {
+                val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
+                    putExtra("mail", intent.getStringExtra("mail"))
+                }
+                startActivity(alimentosIntent)
+                drawer.closeDrawer(GravityCompat.START)
+                Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
+            }
+
+            R.id.nav_nutrihome_six -> {
                 try {
                     FirebaseAuth.getInstance().signOut()
                     val loginIntent = Intent(this, LoginActivity::class.java)
@@ -91,7 +100,7 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                   showAlert("Error al cerrar sesión: ${e.message}")
+                    showAlert("Error al cerrar sesión: ${e.message}")
                 }
             }
         }

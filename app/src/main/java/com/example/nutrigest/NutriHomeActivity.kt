@@ -84,6 +84,15 @@ class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemS
                 Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_five -> {
+                val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
+                    putExtra("mail", intent.getStringExtra("mail"))
+                }
+                startActivity(alimentosIntent)
+                drawer.closeDrawer(GravityCompat.START)
+                Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
+            }
+
+            R.id.nav_nutrihome_six -> {
                 try {
                     FirebaseAuth.getInstance().signOut()
                     val loginIntent = Intent(this, LoginActivity::class.java)

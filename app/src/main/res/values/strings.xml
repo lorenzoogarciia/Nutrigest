@@ -6,11 +6,11 @@
     <string name="navigationdrawer_nutrihome_close">Close</string>
 
     <string-array name="opciones_actividad">
-            <item>Sedentario</item>
-            <item>Ligera</item>
-            <item>Moderada</item>
-            <item>Intensa</item>
-            <item>Muy Intensa</item>
+        <item>Sedentario</item>
+        <item>Ligera</item>
+        <item>Moderada</item>
+        <item>Intensa</item>
+        <item>Muy Intensa</item>
     </string-array>
 
     <string-array name="opciones_genero">
