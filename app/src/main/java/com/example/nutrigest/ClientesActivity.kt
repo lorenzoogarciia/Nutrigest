@@ -91,16 +91,17 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 Toast.makeText(this, "Dietas", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_four -> {
-                drawer.closeDrawer(GravityCompat.START)
-                Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_nutrihome_five -> {
                 val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
                     putExtra("mail", intent.getStringExtra("mail"))
                 }
                 startActivity(alimentosIntent)
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
+
+            }
+            R.id.nav_nutrihome_five -> {
+                drawer.closeDrawer(GravityCompat.START)
+                Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
 
             R.id.nav_nutrihome_six -> {

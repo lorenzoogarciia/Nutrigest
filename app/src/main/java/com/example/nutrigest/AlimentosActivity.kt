@@ -128,6 +128,10 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 Toast.makeText(this, "Dietas", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_four -> {
+                drawer.closeDrawer(GravityCompat.START)
+                Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
+            }
+            R.id.nav_nutrihome_five -> {
                 val clientesIntent = Intent(this, ClientesActivity::class.java).apply {
                     putExtra("mail", intent.getStringExtra("mail"))
                 }
@@ -135,11 +139,6 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Clientes", Toast.LENGTH_SHORT).show()
             }
-            R.id.nav_nutrihome_five -> {
-                drawer.closeDrawer(GravityCompat.START)
-                Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
-            }
-
             R.id.nav_nutrihome_six -> {
                 try {
                     FirebaseAuth.getInstance().signOut()

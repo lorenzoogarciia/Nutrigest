@@ -21,12 +21,12 @@
 
         <item android:id="@+id/nav_nutrihome_four"
             android:icon="@mipmap/ic_launcher_round"
-            android:title="Clientes"
+            android:title="Alimentos"
             tools:ignore="HardcodedText" />
 
         <item android:id="@+id/nav_nutrihome_five"
             android:icon="@mipmap/ic_launcher_round"
-            android:title="Alimentos"
+            android:title="Clientes"
             tools:ignore="HardcodedText" />
 
         <item android:id="@+id/nav_nutrihome_six"
