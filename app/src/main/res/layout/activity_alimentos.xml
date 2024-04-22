@@ -25,6 +25,35 @@
             android:gravity="center"
             android:text="Bienvenido a tus Alimentos"
             tools:ignore="HardcodedText,SpUsage" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_alimentos"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:scrollbars="vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_crear_alimento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear Alimento"
+            android:textSize="20dp"
+            tools:ignore="HardcodedText" />
+
+
     </LinearLayout>
 
     <include
