@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -21,8 +22,10 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
 
+    //Variables de la interfaz del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
@@ -50,8 +53,22 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         setup(email.toString())
     }
 
-    private fun setup(email: String?){
-        actualizarDatosUsuarios(email.toString())
+    private fun setup(email: String?) {
+        try {
+            actualizarDatosUsuarios(email.toString())
+        } catch (e: Exception) {
+            showAlert("Error al cargar datos: ${e.message}")
+        }
+
+        val btnCrearDieta = findViewById<Button>(R.id.btn_crear_dieta)
+
+        btnCrearDieta.setOnClickListener {
+            val crearDietaIntent = Intent(this, CrearDietaActivity::class.java).apply {
+                putExtra("mail", email)
+            }
+            startActivity(crearDietaIntent)
+            Toast.makeText(this, "Crear Dieta", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

@@ -1,14 +1,14 @@
 package com.example.nutrigest.clases
 
 data class Alimentos(
-    val nombre: String,
-    val cantidad: Double,
-    val calorias: Double,
-    val kilojulios: Double,
-    val hidratos: Double,
-    val proteinas: Double,
-    val grasas: Double,
-    val azucar: Double,
-    val fibra: Double,
-    val sal: Double
+    val nombre: String = "",
+    val cantidad: Double = 0.0,
+    val calorias: Double = 0.0,
+    val kilojulios: Double = 0.0,
+    val hidratos: Double = 0.0,
+    val proteinas: Double = 0.0,
+    val grasas: Double = 0.0,
+    val azucar: Double = 0.0,
+    val fibra: Double = 0.0,
+    val sal: Double = 0.0
 )

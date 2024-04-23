@@ -12,7 +12,7 @@
     <LinearLayout
         android:layout_width="409dp"
         android:layout_height="729dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="70dp"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="1dp"
@@ -25,7 +25,16 @@
             android:textSize="20dp"
             android:gravity="center"
             android:text="Aquí saldrán las dietas creadas por el nutricionista"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText,SpUsage" />
+
+        <Button
+            android:id="@+id/btn_crear_dieta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear Dieta"
+            android:textSize="20dp"
+            tools:ignore="HardcodedText,SpUsage" />
     </LinearLayout>
 
     <include

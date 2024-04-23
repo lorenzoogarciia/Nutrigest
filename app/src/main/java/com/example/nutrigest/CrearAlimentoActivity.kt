@@ -85,6 +85,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         btnCrearAlimento.setOnClickListener {
             try {
                 //Guardamos las variables que son datos numericos
+                val nombre = cmpNombre.text.toString() ?: ""
                 val cantidad = cmpCantidad.text.toString().toIntOrNull() ?: 0
                 val calorias = cmpCalorias.text.toString().toIntOrNull() ?: 0
                 val kiloJulios = cmpKilojulios.text.toString().toDoubleOrNull() ?: 0.0
@@ -100,7 +101,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
                     //Recogemos los datos de los campos y los guardamos en un HashMap
                     val alimentoData = hashMapOf(
-                        "nombre" to cmpNombre.text.toString(),
+                        "nombre" to nombre,
                         "cantidad" to cantidad,
                         "calorias" to calorias,
                         "kilojulios" to kiloJulios,
@@ -112,7 +113,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                         "sal" to sal)
 
                     //Guardamos los datos en la base de datos
-                    db.collection("alimentos").add(alimentoData)
+                    db.collection("alimentos").document(nombre).set(alimentoData)
                         .addOnSuccessListener { document ->
                             Toast.makeText(this, "Alimento guardado correctamente", Toast.LENGTH_SHORT).show()
                         }
@@ -191,6 +192,10 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 Toast.makeText(this, "Dietas", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_four -> {
+                val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
+                    putExtra("mail", intent.getStringExtra("mail"))
+                }
+                startActivity(alimentosIntent)
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
             }

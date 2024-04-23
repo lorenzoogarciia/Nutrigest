@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drawer_creardieta"
+    tools:openDrawer="start"
+    tools:context=".CrearDietaActivity">
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        android:layout_marginTop="70dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="1dp"
+        tools:ignore="MissingConstraints">
+
+        <!-- TextView para mostrar mensaje de bienvenida -->
+        <TextView
+            android:id="@+id/txt_creardieta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:text="Bienvenido al formulario para crear Dietas"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText,SpUsage" />
+
+        <!-- Spinner para seleccionar el usuario -->
+        <Spinner
+            android:id="@+id/spinnerUsuarios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Spinner para seleccionar los alimentos -->
+        <Spinner
+            android:id="@+id/spinnerAlimentos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Botones para añadir alimentos a las comidas -->
+        <Button
+            android:id="@+id/btn_addDesayuno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir a Desayuno"
+            tools:ignore="HardcodedText"/>
+
+        <Button
+            android:id="@+id/btn_addMediaManana"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir a Media Mañana"
+            tools:ignore="HardcodedText"/>
+
+        <Button
+            android:id="@+id/btn_addAlmuerzo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir a Almuerzo"
+            tools:ignore="HardcodedText"/>
+
+        <Button
+            android:id="@+id/btn_addMerienda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir a Merienda"
+            tools:ignore="HardcodedText"/>
+
+        <Button
+            android:id="@+id/btn_addCena"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir a Cena"
+            tools:ignore="HardcodedText" />
+
+        <!-- Botón para guardar la dieta -->
+        <Button
+            android:id="@+id/btn_guardar_dieta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear Dieta"
+            android:textSize="20dp"
+            tools:ignore="HardcodedText,SpUsage" />
+
+        <!-- Botón para regresar -->
+        <Button
+            android:id="@+id/btn_volver_dieta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Regresar"
+            android:textSize="20dp"
+            tools:ignore="HardcodedText,SpUsage" />
+    </LinearLayout>
+
+    <include
+        layout="@layout/creardieta_bar"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view_creardieta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/navheader_nutricionistas"
+        app:menu="@menu/activity_nutrihome_drawer"/>
+</androidx.drawerlayout.widget.DrawerLayout>

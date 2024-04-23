@@ -79,6 +79,7 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 putExtra("mail", email)
             }
             startActivity(crearAlimentoIntent)
+            Toast.makeText(this, "Crear Alimento", Toast.LENGTH_SHORT).show()
         }
     }
 
