@@ -15,6 +15,9 @@
         android:theme="@style/Theme.NutriGest"
         tools:targetApi="31">
         <activity
+            android:name=".VerDietaActivity"
+            android:exported="false" />
+        <activity
             android:name=".CrearDietaActivity"
             android:exported="false" />
         <activity
