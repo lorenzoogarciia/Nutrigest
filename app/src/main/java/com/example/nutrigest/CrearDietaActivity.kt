@@ -174,17 +174,43 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             Toast.makeText(this, "Alimento añadido a media mañana", Toast.LENGTH_SHORT).show()
         }
 
+        //Funcionalidad del botón Añadir a almuerzo
+        btnAlmuerzo.setOnClickListener {
+            val alimento = alimentosSpinner.selectedItem as Alimentos
+            dieta["Almuerzo"]?.add(alimento)
+            Toast.makeText(this, "Alimento añadido a almuerzo", Toast.LENGTH_SHORT).show()
+        }
+
+        //Funcionalidad del botón Añadir a merienda
+        btnMerienda.setOnClickListener {
+            val alimento = alimentosSpinner.selectedItem as Alimentos
+            dieta["Merienda"]?.add(alimento)
+            Toast.makeText(this, "Alimento añadido a merienda", Toast.LENGTH_SHORT).show()
+        }
+
+        //Funcionalidad del botón Añadir a cena
+        btnCena.setOnClickListener {
+            val alimento = alimentosSpinner.selectedItem as Alimentos
+            dieta["Cena"]?.add(alimento)
+            Toast.makeText(this, "Alimento añadido a cena", Toast.LENGTH_SHORT).show()
+        }
+
         //Funcionalidad del botón crear dieta
         btnGuardarDieta.setOnClickListener {
             // Obtener el usuario seleccionado
             val usuarioSeleccionado = usuariosSpinner.selectedItem as Usuarios
+
+            //Creamos id de la dieta para el usuario Seleccionado
+            val idDieta = usuarioSeleccionado.crearIdDieta(usuarioSeleccionado.nombre)
+
             // Guardar la dieta en Firestore bajo el usuario seleccionado
             FirebaseFirestore.getInstance().collection("usuarios")
                 .document(usuarioSeleccionado.mail)
                 .collection("dietas")
-                .add(dieta)
+                .document(idDieta)
+                .set(dieta)
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Dieta guardada correctamente para el usuario ${usuarioSeleccionado.nombre}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "$idDieta guardada correctamente", Toast.LENGTH_SHORT).show()
                 }
         }
     }

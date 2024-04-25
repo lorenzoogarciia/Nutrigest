@@ -23,11 +23,16 @@
             android:id="@+id/txt_creardieta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
+            android:layout_marginTop="20dp"
+            android:textSize="22dp"
             android:gravity="center"
             android:text="Bienvenido al formulario para crear Dietas"
             android:textStyle="bold"
             tools:ignore="HardcodedText,SpUsage" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
 
         <!-- Spinner para seleccionar el usuario -->
         <Spinner
@@ -35,53 +40,97 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
         <!-- Spinner para seleccionar los alimentos -->
         <Spinner
             android:id="@+id/spinnerAlimentos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
         <!-- Botones para añadir alimentos a las comidas -->
         <Button
             android:id="@+id/btn_addDesayuno"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Añadir a Desayuno"
-            tools:ignore="HardcodedText"/>
+            android:textSize="20dp"
+            android:backgroundTint="@color/green"
+            tools:ignore="HardcodedText,SpUsage"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp"/>
 
         <Button
             android:id="@+id/btn_addMediaManana"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Añadir a Media Mañana"
-            tools:ignore="HardcodedText"/>
+            android:textSize="20dp"
+            android:backgroundTint="@color/green"
+            tools:ignore="HardcodedText,SpUsage"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp"/>
 
         <Button
             android:id="@+id/btn_addAlmuerzo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Añadir a Almuerzo"
-            tools:ignore="HardcodedText"/>
+            android:textSize="20dp"
+            android:backgroundTint="@color/green"
+            tools:ignore="HardcodedText,SpUsage"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp"/>
 
         <Button
             android:id="@+id/btn_addMerienda"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Añadir a Merienda"
-            tools:ignore="HardcodedText"/>
+            android:textSize="20dp"
+            android:backgroundTint="@color/green"
+            tools:ignore="HardcodedText,SpUsage"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp"/>
 
         <Button
             android:id="@+id/btn_addCena"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Añadir a Cena"
-            tools:ignore="HardcodedText" />
+            android:textSize="20dp"
+            android:backgroundTint="@color/green"
+            tools:ignore="HardcodedText,SpUsage" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
 
         <!-- Botón para guardar la dieta -->
         <Button
             android:id="@+id/btn_guardar_dieta"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Crear Dieta"
             android:textSize="20dp"
             tools:ignore="HardcodedText,SpUsage" />
@@ -90,7 +139,8 @@
         <Button
             android:id="@+id/btn_volver_dieta"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
             android:text="Regresar"
             android:textSize="20dp"
             tools:ignore="HardcodedText,SpUsage" />

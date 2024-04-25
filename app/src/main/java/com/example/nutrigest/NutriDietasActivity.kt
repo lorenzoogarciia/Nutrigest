@@ -5,7 +5,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ListView
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +22,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.nutrigest.clases.Usuarios
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -28,6 +35,10 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     //Variables de la interfaz del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+
+    private lateinit var usuariosSpinner: Spinner
+    private lateinit var dietasAdapter: ArrayAdapter<String>
+    private val dietasList = arrayListOf<String>()
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +65,30 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     }
 
     private fun setup(email: String?) {
+        //Inicialización de los elementos de la interfaz
+        val btnCrearDieta = findViewById<Button>(R.id.btn_crear_dieta)
+        usuariosSpinner = findViewById(R.id.spinnerUsuariosNutriDietas)
+        val listViewDietas: ListView = findViewById(R.id.listViewDietas)
+        // Asegúrate de inicializar el dietasAdapter antes de cualquier función que pueda usarlo
+        dietasAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dietasList)
+        listViewDietas.adapter = dietasAdapter
+
+        //Actualizamos los datos del usuario en la interfaz
         try {
             actualizarDatosUsuarios(email.toString())
         } catch (e: Exception) {
             showAlert("Error al cargar datos: ${e.message}")
         }
 
-        val btnCrearDieta = findViewById<Button>(R.id.btn_crear_dieta)
+        //Inicialización de los elementos del Spinner
+        try {
+            configurarSpinnerUsuarios()
+        } catch (e: Exception) {
+            showAlert("Error al cargar usuarios: ${e.message}")
+        }
+
+
+
 
         btnCrearDieta.setOnClickListener {
             val crearDietaIntent = Intent(this, CrearDietaActivity::class.java).apply {
@@ -174,6 +202,82 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         }catch (FireBaseException: Exception){
             showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
         }
+    }
+
+    //Función para cargar los usuarios de la base de datos y mostrarlos en un Spinner
+    private fun cargarUsuarios(usuariosList: ArrayList<Usuarios>, usuariosAdapter: ArrayAdapter<Usuarios>) {
+        FirebaseFirestore.getInstance().collection("usuarios")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val usuario = document.toObject(Usuarios::class.java)
+                    usuariosList.add(usuario)
+                }
+                usuariosAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al cargar usuarios: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    //Función para cargar las dietas de un usuario y mostrarlas en un ListView
+    private fun configurarSpinnerUsuarios() {
+        val usuariosList = arrayListOf<Usuarios>()
+        val usuariosAdapter = object : ArrayAdapter<Usuarios>(this, android.R.layout.simple_spinner_item, usuariosList) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val label = super.getView(position, convertView, parent) as TextView
+                label.text = getItem(position)?.nombre
+                return label
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val label = super.getDropDownView(position, convertView, parent) as TextView
+                label.text = getItem(position)?.nombre
+                return label
+            }
+        }
+
+        usuariosSpinner.adapter = usuariosAdapter
+
+        FirebaseFirestore.getInstance().collection("usuarios")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val usuario = document.toObject(Usuarios::class.java)
+                    usuariosList.add(usuario)
+                }
+                usuariosAdapter.notifyDataSetChanged()
+            }
+
+        usuariosSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val usuarioSeleccionado = parent.getItemAtPosition(position) as Usuarios
+                cargarDietas(usuarioSeleccionado.mail)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // No hacer nada
+            }
+        }
+
+    }
+
+    private fun cargarDietas(mail: String) {
+        dietasList.clear()  // Limpiar la lista anterior de dietas
+        FirebaseFirestore.getInstance().collection("usuarios")
+            .document(mail)
+            .collection("dietas")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val dietaId = document.id  // Asumiendo que quieres mostrar el ID de la dieta
+                    dietasList.add(dietaId)
+                }
+                dietasAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al cargar dietas: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun showAlert(mensaje: String){

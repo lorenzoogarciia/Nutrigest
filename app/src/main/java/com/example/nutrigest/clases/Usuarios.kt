@@ -1,6 +1,9 @@
 package com.example.nutrigest.clases
 
 import android.widget.Toast
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class Usuarios (
     var nombre: String = "",
@@ -64,6 +67,13 @@ class Usuarios (
             .addOnFailureListener { e ->
                 Toast.makeText(null, "Error al actualizar el campo $campo: $e", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    fun crearIdDieta(nombre: String): String {
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val fechaActual = Date()
+        val fechaFormateada = sdf.format(fechaActual)
+        return "Dieta ${nombre} ${fechaFormateada}"
     }
 
 

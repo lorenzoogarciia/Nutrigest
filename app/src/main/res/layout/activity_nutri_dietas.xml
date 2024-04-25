@@ -18,6 +18,10 @@
         tools:layout_editor_absoluteX="1dp"
         tools:ignore="MissingConstraints">
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
         <TextView
             android:id="@+id/txt_nutridietas"
             android:layout_width="match_parent"
@@ -27,6 +31,29 @@
             android:text="Aquí saldrán las dietas creadas por el nutricionista"
             android:textStyle="bold"
             tools:ignore="HardcodedText,SpUsage" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <!-- Spinner para seleccionar el usuario -->
+        <Spinner
+            android:id="@+id/spinnerUsuariosNutriDietas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <ListView
+            android:id="@+id/listViewDietas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
 
         <Button
             android:id="@+id/btn_crear_dieta"
