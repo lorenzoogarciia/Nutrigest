@@ -81,7 +81,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     detallesDietaList.clear()
                     documentSnapshot.data?.let { data ->
                         data["Desayuno"]?.let { detallesDietaList.add("Desayuno: $it") }
-                        data["Media Manana"]?.let { detallesDietaList.add("Media Mañana: $it") }
+                        data["Media mañana"]?.let { detallesDietaList.add("Media Mañana: $it") }
                         data["Almuerzo"]?.let { detallesDietaList.add("Almuerzo: $it") }
                         data["Merienda"]?.let { detallesDietaList.add("Merienda: $it") }
                         data["Cena"]?.let { detallesDietaList.add("Cena: $it") }

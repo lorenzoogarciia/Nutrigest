@@ -32,6 +32,10 @@
             android:textStyle="bold"
             tools:ignore="HardcodedText,SpUsage" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
         <ListView
             android:id="@+id/listView_verdieta"
             android:layout_width="match_parent"
