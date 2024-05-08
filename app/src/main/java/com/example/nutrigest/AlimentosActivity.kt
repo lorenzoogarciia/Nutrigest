@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -72,7 +73,8 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
 
         //Inicializar botón de crear alimento
-        val btnCrearAlimento = findViewById<TextView>(R.id.btn_crear_alimento)
+        val btnCrearAlimento = findViewById<Button>(R.id.btn_crear_alimento)
+        val btnEliminarAlimento = findViewById<Button>(R.id.btn_eliminar_alimento)
 
         btnCrearAlimento.setOnClickListener {
             val crearAlimentoIntent = Intent(this, CrearAlimentoActivity::class.java).apply {
@@ -81,6 +83,20 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             startActivity(crearAlimentoIntent)
             Toast.makeText(this, "Crear Alimento", Toast.LENGTH_SHORT).show()
         }
+
+        btnEliminarAlimento.setOnClickListener {
+            val alimentoSeleccionado = findViewById<TextView>(R.id.txt_nombre)
+
+            db.collection("alimentos").document(alimentoSeleccionado.text.toString()).delete()
+                .addOnSuccessListener {
+                    showAlert("Alimento eliminado correctamente")
+                }
+                .addOnFailureListener { e ->
+                    showAlert("Error al eliminar el alimento: ${e.message}")
+                }
+
+        }
+
     }
 
     //Función que actualiza los datos de la UI

@@ -1,5 +1,6 @@
 package com.example.nutrigest
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -14,6 +15,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.nutrigest.clases.AlimentosAdapter
+import com.example.nutrigest.clases.Dietas
+import com.example.nutrigest.clases.DietasAdapter
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -27,7 +33,9 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
-    private lateinit var detallesDietaAdapter: ArrayAdapter<String>
+    //Variables para la creación del RecyclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var DietasAdapter: DietasAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,22 +63,28 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setup(mail.toString(), idDieta.toString())
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun setup(email: String?, idDieta: String?) {
         try {
-            actualizarDatosUsuarios(email.toString(), idDieta.toString())
-        } catch (e: Exception) {
-            showAlert("Error al actualizar datos: ${e.message}")
-        }
+        actualizarDatosUsuarios(email.toString(), idDieta.toString())
+    } catch (e: Exception) {
+        showAlert("Error al actualizar datos: ${e.message}")
+    }
 
-        //variables para la lista de detalles de la dieta
-        val  detallesDietaList = arrayListOf<String>()
-        val listViewDetallesDieta: ListView = findViewById(R.id.listView_verdieta)
-        detallesDietaAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, detallesDietaList)
-        listViewDetallesDieta.adapter = detallesDietaAdapter
+        // Inicialización del RecyclerView para las dietas
+        recyclerView = findViewById(R.id.recyclerView_dietas)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Lista para almacenar las dietas obtenidas de Firestore
+        val dietasList = mutableListOf<Dietas>()
+
+        // Inicializar el adaptador con la lista vacía inicialmente
+        val dietasAdapter = DietasAdapter(dietasList)
+        recyclerView.adapter = dietasAdapter
 
         Log.d("VerDietaActivity", "Email: $email, idDieta: $idDieta")
 
-        //Obtenemos los detalles de la dieta
+        // Obtener los detalles de la dieta específica
         db.collection("usuarios")
             .document(email.toString())
             .collection("dietas")
@@ -78,23 +92,21 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    detallesDietaList.clear()
-                    documentSnapshot.data?.let { data ->
-                        data["Desayuno"]?.let { detallesDietaList.add("Desayuno: $it") }
-                        data["Media mañana"]?.let { detallesDietaList.add("Media Mañana: $it") }
-                        data["Almuerzo"]?.let { detallesDietaList.add("Almuerzo: $it") }
-                        data["Merienda"]?.let { detallesDietaList.add("Merienda: $it") }
-                        data["Cena"]?.let { detallesDietaList.add("Cena: $it") }
+                    val dieta = documentSnapshot.toObject(Dietas::class.java)
+                    dieta?.let {
+                        dietasList.add(it)
+                        dietasAdapter.notifyDataSetChanged()
                     }
-                    detallesDietaAdapter.notifyDataSetChanged()
+
                 } else {
-                    Toast.makeText(this, "Dieta no encontrada", Toast.LENGTH_SHORT).show()
+                    Log.d("VerDietaActivity", "No se encontró la dieta")
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al cargar la dieta: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("VerDietaActivity", "Error al cargar dietas", e)
             }
     }
+
 
     //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
