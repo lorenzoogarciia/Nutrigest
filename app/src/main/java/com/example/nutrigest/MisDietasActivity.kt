@@ -71,6 +71,15 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         dietasUsuarioAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dietasList)
         listViewDietas.adapter = dietasUsuarioAdapter
 
+        //Si pulsamos en una dieta, nos lleva a la actividad de ver dieta pasándole el id de la dieta
+        listViewDietas.setOnItemClickListener { parent, view, position, id ->
+            val idDieta = dietasList[position]  // Obtén el id de la dieta clickeada
+            val verDietaintent = Intent(this, VerDietaUsuarioActivity::class.java)
+            verDietaintent.putExtra("idDieta", idDieta)  // Pasamos el id de la dieta
+            verDietaintent.putExtra("mail", email) //Pasamos el mail del usuario
+            startActivity(verDietaintent)
+        }
+
 
     }
 

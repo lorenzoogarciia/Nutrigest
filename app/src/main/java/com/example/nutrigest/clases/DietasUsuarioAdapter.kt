@@ -16,7 +16,7 @@ class DietasUsuarioAdapter(
     RecyclerView.Adapter<DietasUsuarioAdapter.DietasViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DietasViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_dieta, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_dietausuario, parent, false)
         return DietasViewHolder(itemView)
     }
 
@@ -41,7 +41,7 @@ class DietasUsuarioAdapter(
         }
 
         // Asigna el texto compilado al TextView
-        holder.txtDetallesDieta.text = mealsDetails
+        holder.txtDetallesDietaUsuario.text = mealsDetails
     }
 
     override fun getItemCount() = dietasList.size
@@ -51,6 +51,6 @@ class DietasUsuarioAdapter(
     }
 
     class DietasViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val txtDetallesDieta: TextView = itemView.findViewById(R.id.txt_detalles_dieta)
+        val txtDetallesDietaUsuario: TextView = itemView.findViewById(R.id.txt_detalles_dietausuario)
     }
 }
