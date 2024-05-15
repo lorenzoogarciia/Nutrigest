@@ -5,30 +5,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.nutrigest.R
 
-class PerfilNutricionistasControlador(private var datosNutricionista: List<String>) :
-    RecyclerView.Adapter<PerfilNutricionistasControlador.ViewHolder>() {
+class PerfilUsuariosAdapter(private var datosUsuario: List<String>) :
+    RecyclerView.Adapter<PerfilUsuariosAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_nutriperfil, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_perfil, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val dato = datosNutricionista[position]
-        holder.infoNutricionista.text = dato
+        val dato = datosUsuario[position]
+        holder.infoUsuario.text = dato
     }
 
-    override fun getItemCount() = datosNutricionista.size
+    override fun getItemCount() = datosUsuario.size
 
     fun actualizarDatos(nuevosUsuarios: List<String>) {
-        datosNutricionista = nuevosUsuarios
+        datosUsuario = nuevosUsuarios
         notifyDataSetChanged()
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val infoNutricionista: TextView = view.findViewById(R.id.info_nutricionista)
+        val infoUsuario: TextView = view.findViewById(R.id.info_usuario)
     }
 }
+
+

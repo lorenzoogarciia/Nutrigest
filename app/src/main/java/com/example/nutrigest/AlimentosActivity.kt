@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package com.example.nutrigest
 
 import android.annotation.SuppressLint
@@ -20,12 +22,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.clases.Alimentos
 import com.example.nutrigest.clases.AlimentosAdapter
+import com.example.nutrigest.interfaces.OnItemActionListener
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    OnItemActionListener {
     //Variables para la creación del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
@@ -74,7 +78,6 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         //Inicializar botón de crear alimento
         val btnCrearAlimento = findViewById<Button>(R.id.btn_crear_alimento)
-        val btnEliminarAlimento = findViewById<Button>(R.id.btn_eliminar_alimento)
 
         btnCrearAlimento.setOnClickListener {
             val crearAlimentoIntent = Intent(this, CrearAlimentoActivity::class.java).apply {
@@ -84,18 +87,6 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             Toast.makeText(this, "Crear Alimento", Toast.LENGTH_SHORT).show()
         }
 
-        btnEliminarAlimento.setOnClickListener {
-            val alimentoSeleccionado = findViewById<TextView>(R.id.txt_nombre)
-
-            db.collection("alimentos").document(alimentoSeleccionado.text.toString()).delete()
-                .addOnSuccessListener {
-                    showAlert("Alimento eliminado correctamente")
-                }
-                .addOnFailureListener { e ->
-                    showAlert("Error al eliminar el alimento: ${e.message}")
-                }
-
-        }
 
     }
 
@@ -155,7 +146,7 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     sal = document.getDouble("sal") ?: 0.0
                 )
             }
-            alimentosAdapter = AlimentosAdapter(alimentosList)
+            alimentosAdapter = AlimentosAdapter(alimentosList, this)
             recyclerView.adapter = alimentosAdapter
         }.addOnFailureListener { exception ->
             showAlert("Error al obtener datos: $exception")
@@ -225,6 +216,12 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         return true
     }
 
+    //Función que actualiza los datos de la interfaz al eliminar un alimento
+    override fun onItemDeleted() {
+        val mail: String = intent.getStringExtra("mail").toString()
+        actualizarDatosUsuarios(mail)
+    }
+
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -241,4 +238,5 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
         return super.onOptionsItemSelected(item)
     }
+
 }

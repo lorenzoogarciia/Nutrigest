@@ -14,16 +14,18 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.clases.Usuarios
-import com.example.nutrigest.clases.UsuariosControlador
+import com.example.nutrigest.clases.UsuariosAdapter
+import com.example.nutrigest.interfaces.OnItemActionListener
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    OnItemActionListener {
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
-    private lateinit var usuariosControlador: UsuariosControlador
+    private lateinit var usuariosAdapter: UsuariosAdapter
     private lateinit var recyclerView: RecyclerView
 
     private val db = FirebaseFirestore.getInstance()
@@ -178,10 +180,10 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 val usuario = document.toObject(Usuarios::class.java)
                 usuariosList.add(usuario)
             }
-            usuariosControlador = UsuariosControlador(usuariosList)
+            usuariosAdapter = UsuariosAdapter(usuariosList, this)
             recyclerView = findViewById(R.id.recyclerView_Clientes)
             recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = usuariosControlador
+            recyclerView.adapter = usuariosAdapter
         }.addOnFailureListener { exception ->
             showAlert("Error al mostrar los clientes: ${exception.message}")
         }
@@ -195,5 +197,9 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         builder.setPositiveButton("Aceptar", null)
         val dialog: AlertDialog = builder.create()
         dialog.show()
+    }
+
+    override fun onItemDeleted() {
+        mostrarClientes()
     }
 }

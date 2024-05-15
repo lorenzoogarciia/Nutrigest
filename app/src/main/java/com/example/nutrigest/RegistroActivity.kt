@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -102,6 +103,9 @@ class RegistroActivity : AppCompatActivity() {
                                         "genero" to spinnerGenero.selectedItem.toString()
                                     )
                                 )
+
+                                //Mostramos un mensaje de éxito
+                                Toast.makeText(this, "Usuario registrado correctamente", Toast.LENGTH_SHORT).show()
                             }else{
                                 showAlert("No se ha podido registrar al usuario para la autenticación")
                             }

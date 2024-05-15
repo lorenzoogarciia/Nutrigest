@@ -15,7 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.clases.Nutricionistas
-import com.example.nutrigest.clases.PerfilNutricionistasControlador
+import com.example.nutrigest.clases.PerfilNutricionistasAdapter
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -24,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     //Variables para el ReciclerView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var perfilNutricionistasControlador: PerfilNutricionistasControlador
+    private lateinit var perfilNutricionistasAdapter: PerfilNutricionistasAdapter
 
     //Variables para el Navigation Drawer
     private lateinit var drawer: DrawerLayout
@@ -193,8 +193,8 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             // Inicialización de los datos del nutricionista
             recyclerView = findViewById(R.id.recyclerView_perfilnutricionistas)
             recyclerView.layoutManager = LinearLayoutManager(this)
-            perfilNutricionistasControlador = PerfilNutricionistasControlador(emptyList())
-            recyclerView.adapter = perfilNutricionistasControlador
+            perfilNutricionistasAdapter = PerfilNutricionistasAdapter(emptyList())
+            recyclerView.adapter = perfilNutricionistasAdapter
 
             try {
                 db.collection("nutricionistas").document(idNutricionista).get()
@@ -206,7 +206,7 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                                 "Mail: ${nutricionista.mail}"
                             )
                             // Actualiza los datos del adaptador después de inicializarlo.
-                            perfilNutricionistasControlador.actualizarDatos(datosNutricionista)
+                            perfilNutricionistasAdapter.actualizarDatos(datosNutricionista)
 
                             // Actualizamos la línea que nos muestra el total de clientes en la interfaz
                             db.collection("usuarios").get().addOnSuccessListener { usuarios ->

@@ -93,7 +93,8 @@ class NutriDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItem
             val idDieta = dietasList[position]  // Obtén el id de la dieta clickeada
             val verDietaintent = Intent(this, VerDietaActivity::class.java)
             verDietaintent.putExtra("idDieta", idDieta)  // Pasar el id de la dieta a la siguiente Activity
-            verDietaintent.putExtra("mail", emailUsuarioActual) //Pasamos el mail del usuario seleccionado
+            verDietaintent.putExtra("mailUsuario", emailUsuarioActual) //Pasamos el mail del usuario seleccionado
+            verDietaintent.putExtra("mailNutricionista", email) //Pasamos el mail del nutricionista
             startActivity(verDietaintent)
         }
 

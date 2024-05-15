@@ -6,8 +6,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -17,15 +15,15 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nutrigest.clases.AlimentosAdapter
 import com.example.nutrigest.clases.Dietas
 import com.example.nutrigest.clases.DietasAdapter
+import com.example.nutrigest.interfaces.OnItemActionListener
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
-class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnItemActionListener {
     //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
 
@@ -35,7 +33,6 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     //Variables para la creación del RecyclerView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var DietasAdapter: DietasAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,16 +54,19 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         //Recuperamos el id de la dieta y lo guardamos en una variable
         val idDieta = intent.getStringExtra("idDieta")
-        val mail = intent.getStringExtra("mail")
+        val mailUsuario = intent.getStringExtra("mailUsuario")
+        val mailNutricionista = intent.getStringExtra("mailNutricionista")
+
+        Log.d("VerDietaActivity", "Email: $mailUsuario, idDieta: $idDieta, mailNutricionista: $mailNutricionista")
 
         //Llamamos a la función setup para actualizar los datos del usuario en el Navheader
-        setup(mail.toString(), idDieta.toString())
+        setup(idDieta.toString(),mailUsuario.toString(), mailNutricionista.toString())
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun setup(email: String?, idDieta: String?) {
+    private fun setup(idDieta: String?, mailUsuario: String?, mailNutricionista: String?) {
         try {
-        actualizarDatosUsuarios(email.toString(), idDieta.toString())
+        actualizarDatosUsuarios(mailNutricionista.toString(), idDieta.toString())
     } catch (e: Exception) {
         showAlert("Error al actualizar datos: ${e.message}")
     }
@@ -79,14 +79,14 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val dietasList = mutableListOf<Dietas>()
 
         // Inicializar el adaptador con la lista vacía inicialmente
-        val dietasAdapter = DietasAdapter(dietasList)
+        val dietasAdapter = DietasAdapter(dietasList, this, mailUsuario.toString(), idDieta.toString())
         recyclerView.adapter = dietasAdapter
 
-        Log.d("VerDietaActivity", "Email: $email, idDieta: $idDieta")
+        Log.d("VerDietaActivity", "Email: $mailUsuario, idDieta: $idDieta")
 
         // Obtener los detalles de la dieta específica
         db.collection("usuarios")
-            .document(email.toString())
+            .document(mailUsuario.toString())
             .collection("dietas")
             .document(idDieta.toString())
             .get()
@@ -97,7 +97,6 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                         dietasList.add(it)
                         dietasAdapter.notifyDataSetChanged()
                     }
-
                 } else {
                     Log.d("VerDietaActivity", "No se encontró la dieta")
                 }
@@ -113,14 +112,14 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
                 val homeIntent = Intent(this, NutriHomeActivity::class.java).apply{
-                    putExtra("mail", intent.getStringExtra("mail"))}
+                    putExtra("mail", intent.getStringExtra("mailNutricionista"))}
                 startActivity(homeIntent)
                 drawer.closeDrawer(GravityCompat.START)
                 Toast.makeText(this, "Inicio", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_nutrihome_two -> {
                 val perfilIntent = Intent(this, NutriPerfilActivity::class.java).apply {
-                    putExtra("mail", intent.getStringExtra("mail"))
+                    putExtra("mail", intent.getStringExtra("mailNutricionista"))
                 }
                 startActivity(perfilIntent)
                 drawer.closeDrawer(GravityCompat.START)
@@ -128,7 +127,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
             R.id.nav_nutrihome_three -> {
                 val dietasIntent = Intent(this, NutriDietasActivity::class.java).apply {
-                    putExtra("mail", intent.getStringExtra("mail"))
+                    putExtra("mail", intent.getStringExtra("mailNutricionista"))
                 }
                 startActivity(dietasIntent)
                 drawer.closeDrawer(GravityCompat.START)
@@ -136,7 +135,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
             R.id.nav_nutrihome_four -> {
                 val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
-                    putExtra("mail", intent.getStringExtra("mail"))
+                    putExtra("mail", intent.getStringExtra("mailNutricionista"))
                 }
                 startActivity(alimentosIntent)
                 drawer.closeDrawer(GravityCompat.START)
@@ -145,7 +144,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
             R.id.nav_nutrihome_five -> {
                 val clientesIntent = Intent(this, ClientesActivity::class.java).apply {
-                    putExtra("mail", intent.getStringExtra("mail"))
+                    putExtra("mail", intent.getStringExtra("mailNutricionista"))
                 }
                 startActivity(clientesIntent)
                 drawer.closeDrawer(GravityCompat.START)
@@ -227,5 +226,13 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         builder.setPositiveButton("Aceptar", null)
         val dialog: AlertDialog = builder.create()
         dialog.show()
+    }
+
+    override fun onItemDeleted() {
+        //Si borramos una dieta volvemos a NutriDietasActivity
+        val volverIntent: Intent = Intent(this, NutriDietasActivity::class.java).apply {
+            putExtra("mail", intent.getStringExtra("mailNutricionista"))
+        }
+        startActivity(volverIntent)
     }
 }

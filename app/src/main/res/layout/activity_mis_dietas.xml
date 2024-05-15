@@ -25,6 +25,17 @@
             android:gravity="center"
             android:text="Bienvenido a tus Dietas"
             tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <ListView
+            android:id="@+id/listViewDietasUsuario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
     </LinearLayout>
 
     <include

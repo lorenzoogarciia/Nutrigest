@@ -13,7 +13,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nutrigest.clases.PerfilUsuariosControlador
+import com.example.nutrigest.clases.PerfilUsuariosAdapter
 import com.example.nutrigest.clases.Usuarios
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -23,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelectedListener {
     //Variables para el ReciclerView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var perfilUsuariosControlador: PerfilUsuariosControlador
+    private lateinit var perfilUsuariosAdapter: PerfilUsuariosAdapter
 
     //Variables para el Navigation Drawer
     private lateinit var drawer: DrawerLayout
@@ -159,8 +159,8 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
             // Inicializa aquí, asegurándote de que se hace solo una vez.
             recyclerView = findViewById(R.id.recyclerView_perfilusuarios)
             recyclerView.layoutManager = LinearLayoutManager(this)
-            perfilUsuariosControlador = PerfilUsuariosControlador(emptyList())
-            recyclerView.adapter = perfilUsuariosControlador
+            perfilUsuariosAdapter = PerfilUsuariosAdapter(emptyList())
+            recyclerView.adapter = perfilUsuariosAdapter
 
             try {
                 db.collection("usuarios").document(idUsuario).get()
@@ -180,7 +180,7 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
                                 "Dirección: ${usuario.address}"
                             )
                             // Actualiza los datos del adaptador después de inicializarlo.
-                            perfilUsuariosControlador.actualizarDatos(datosUsuario)
+                            perfilUsuariosAdapter.actualizarDatos(datosUsuario)
                         }
                     }
                     .addOnFailureListener { e ->

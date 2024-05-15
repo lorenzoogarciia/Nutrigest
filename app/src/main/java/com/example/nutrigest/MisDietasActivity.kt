@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -18,10 +20,14 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    //Instancia de la base de datos
+    private val db = FirebaseFirestore.getInstance()
+
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
-    private val db = FirebaseFirestore.getInstance()
+    private lateinit var dietasUsuarioAdapter: ArrayAdapter<String>
+    private val dietasList = arrayListOf<String>()
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +54,24 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
 
     private fun setup(email: String?){
-        actualizarDatosUsuarios(email.toString())
+        try {
+            actualizarDatosUsuarios(email.toString())
+        }catch (e: Exception){
+            showAlert("Error al actualizar datos: ${e.message}")
+        }
+
+        try {
+            cargarDietas(email.toString())
+        }catch (e: Exception){
+            showAlert("Error al cargar dietas: ${e.message}")
+        }
+
+        val listViewDietas: ListView = findViewById(R.id.listViewDietasUsuario)
+        //Se obtienen las dietas del usuario
+        dietasUsuarioAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dietasList)
+        listViewDietas.adapter = dietasUsuarioAdapter
+
+
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -137,6 +160,24 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }catch (FireBaseException: Exception){
             showAlert("Error al Actualizar UI: ${FireBaseException.message}")
         }
+    }
+
+    private fun cargarDietas(mail: String) {
+        dietasList.clear()  // Limpiar la lista anterior de dietas
+        FirebaseFirestore.getInstance().collection("usuarios")
+            .document(mail)
+            .collection("dietas")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val dietaId = document.id
+                    dietasList.add(dietaId)
+                }
+                dietasUsuarioAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al cargar dietas: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     //Función que muestra un mensaje de alerta

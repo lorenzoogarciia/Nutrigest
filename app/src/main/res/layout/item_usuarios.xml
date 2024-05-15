@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp">
@@ -98,6 +98,14 @@
             android:layout_height="wrap_content"
             android:text="Dirección"
             android:padding="4dp"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_eliminar_usuario"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Eliminar Usuario"
             tools:ignore="HardcodedText" />
 
     </LinearLayout>
