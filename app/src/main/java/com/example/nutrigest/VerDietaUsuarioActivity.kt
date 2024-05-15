@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -68,6 +69,8 @@ class VerDietaUsuarioActivity : AppCompatActivity(),  NavigationView.OnNavigatio
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setup(email: String?, idDieta: String?){
+        val btnRegresar = findViewById<Button>(R.id.btn_regresar_dietausuario)
+
         //Actualizamos los datos del usuario en la interfaz
         try {
             actualizarDatosUsuarios(email.toString(), idDieta.toString())
@@ -106,6 +109,15 @@ class VerDietaUsuarioActivity : AppCompatActivity(),  NavigationView.OnNavigatio
             .addOnFailureListener { e ->
                 Log.e("VerDietaActivity", "Error al cargar dietas", e)
             }
+
+        //Botón para regresar a la actividad anterior
+        btnRegresar.setOnClickListener {
+            val misDietasIntent = Intent(this, MisDietasActivity::class.java).apply {
+                putExtra("mail", email)
+            }
+            startActivity(misDietasIntent)
+            Toast.makeText(this, "Mis Dietas", Toast.LENGTH_SHORT).show()
+        }
     }
 
     @SuppressLint("SetTextI18n")
