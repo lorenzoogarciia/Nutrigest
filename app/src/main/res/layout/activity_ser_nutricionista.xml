@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_background"
+    tools:context=".SerNutricionistaActivity">
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="497dp"
+        android:layout_marginTop="100dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.951"
+
+        tools:layout_editor_absoluteX="0dp"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/logoInicio"
+            android:layout_width="300dp"
+            android:layout_height="227dp"
+            android:layout_weight="1"
+            android:src="@mipmap/ic_launcher_round"
+            tools:ignore="ContentDescription,InefficientWeight" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="350dp"
+        android:layout_marginBottom="300dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="300dp">
+
+        <EditText
+            android:id="@+id/cmp_email_nutricionista"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/black"
+            android:hint="Email"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:inputType="textEmailAddress"
+            tools:ignore="Autofill,HardcodedText" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints">
+
+        <Button
+            android:id="@+id/btn_enviar_mail"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="440dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:text="Enviar email"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText,InefficientWeight" />
+
+        <Button
+            android:id="@+id/btn_volver"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="440dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:text="Volver"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText,InefficientWeight" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "657604505383",
-    "project_id": "nutrigest-a221b",
-    "storage_bucket": "nutrigest-a221b.appspot.com"
+    "project_number": "232692161019",
+    "project_id": "nutrigest-16eb8",
+    "storage_bucket": "nutrigest-16eb8.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:657604505383:android:29dd66ebe8fdfb6ecd8302",
+        "mobilesdk_app_id": "1:232692161019:android:7a589b54cc24432d32535e",
         "android_client_info": {
           "package_name": "com.example.nutrigest"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBb7QYaTfLZ_eFoAHSz99gMe36ruhj24CA"
+          "current_key": "AIzaSyCk8mxjdB1ydj1aSQ5BborzOtnQSEnLseo"
         }
       ],
       "services": {
