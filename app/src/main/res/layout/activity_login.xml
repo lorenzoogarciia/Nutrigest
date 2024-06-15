@@ -65,7 +65,7 @@
             android:textColorHint="@color/white"
             android:backgroundTint="@color/black_background"
             android:textAlignment="center"
-            tools:ignore="Autofill,HardcodedText" />
+            tools:ignore="Autofill,HardcodedText"/>
 
         <Space
             android:layout_width="match_parent"
