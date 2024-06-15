@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/black_background"
     tools:context=".LoginActivity">
 
     <LinearLayout
@@ -14,15 +14,17 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.951"
+
         tools:layout_editor_absoluteX="0dp"
         tools:ignore="MissingConstraints">
 
         <ImageView
             android:id="@+id/logoInicio"
-            android:layout_width="600dp"
+            android:layout_width="300dp"
             android:layout_height="227dp"
             android:layout_weight="1"
-            android:src="@mipmap/ic_launcher_round" />
+            android:src="@mipmap/ic_launcher_round"
+            tools:ignore="ContentDescription,InefficientWeight" />
 
     </LinearLayout>
 
@@ -47,7 +49,9 @@
             android:inputType="textEmailAddress"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
-            android:textAlignment="center"/>
+            android:backgroundTint="@color/black_background"
+            android:textAlignment="center"
+            tools:ignore="Autofill,HardcodedText" />
 
         <EditText
             android:id="@+id/cmp_passwd"
@@ -59,8 +63,9 @@
             android:inputType="textPassword"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
+            android:backgroundTint="@color/black_background"
             android:textAlignment="center"
-            tools:ignore="HardcodedText" />
+            tools:ignore="Autofill,HardcodedText" />
 
         <Space
             android:layout_width="match_parent"
@@ -68,6 +73,7 @@
     </LinearLayout>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="243dp"
@@ -77,20 +83,36 @@
 
         <Button
             android:id="@+id/btn_signup"
-            android:layout_width="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="440dp"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:text="Registrarse"
             android:textColor="@color/black"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText,InefficientWeight" />
+
+        <Button
+            android:id="@+id/btn_sernutricionista"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="440dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:text="Quiero ser nutricionista"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText,InefficientWeight" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:backgroundTint="@color/black_background">
 
         <Button
             android:id="@+id/btn_signin"
@@ -101,7 +123,8 @@
             android:backgroundTint="@color/white"
             android:text="Iniciar Sesión"
             android:textColor="@color/black"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText,InefficientWeight" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

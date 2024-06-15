@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -34,13 +35,21 @@ class LoginActivity : AppCompatActivity() {
         //Inicializamos los elementos visuales del Activity
         val btnSignup = findViewById<Button>(R.id.btn_signup)
         val btnSignin = findViewById<Button>(R.id.btn_signin)
+        val btnSerNutricionista = findViewById<Button>(R.id.btn_sernutricionista)
         val txtMail = findViewById<EditText>(R.id.cmp_mail)
         val txtPasswd = findViewById<EditText>(R.id.cmp_passwd)
 
         //Funcionamiento del botón de registro
         btnSignup.setOnClickListener {
-            //Llamada a la función showRegistro que muestra la Activity de Registro
-            showRegistro()
+            val signupIntent = Intent(this, RegistroActivity::class.java)
+            startActivity(signupIntent)
+            Toast.makeText(this, "Registro", Toast.LENGTH_SHORT).show()
+        }
+
+        btnSerNutricionista.setOnClickListener {
+            val serNutricionistaIntent = Intent(this, SerNutricionistaActivity::class.java)
+            startActivity(serNutricionistaIntent)
+            Toast.makeText(this, "Ser Nutricionista", Toast.LENGTH_SHORT).show()
         }
 
         //Funcionamiento del botón de Inicio de Sesión
@@ -70,7 +79,6 @@ class LoginActivity : AppCompatActivity() {
                 //Capturamos la excepción y la mostramos por pantalla en caso de error
                 showAlert("Error de autenticación: ${e.stackTraceToString()}")
             }
-
         }
     }
 
@@ -90,12 +98,6 @@ class LoginActivity : AppCompatActivity() {
         builder.setPositiveButton("Aceptar", null)
         val dialog: AlertDialog = builder.create()
         dialog.show()
-    }
-
-    //Función que muestra el formulario de Registro
-    private fun showRegistro(){
-        val registroIntent = Intent(this, RegistroActivity::class.java)
-        startActivity(registroIntent)
     }
 
     //Función que muestra el home de los "nutricionistas"
