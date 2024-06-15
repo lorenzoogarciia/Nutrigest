@@ -3,6 +3,7 @@ package com.example.nutrigest
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -64,6 +65,7 @@ class LoginActivity : AppCompatActivity() {
                                 //Verificamos que el usuario esté creado
                             if(it.isSuccessful){
                                 val mail = it.result?.user?.email ?: ""
+                                Log.d("LoginActivity", "Usuario autenticado: $mail")
                                 validarRolUsuario(mail)
                             }else{
                                 showAlert("Por favor, revise sus credenciales")

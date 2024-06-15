@@ -196,7 +196,7 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
             if (allTasks.isSuccessful) {
                 Log.d("EditarPerfilActivity", "Todas las tareas de actualización de Auth completadas exitosamente")
                 val userData = hashMapOf(
-                    "email" to (if (email.isNotEmpty() && email != user.email) email else user.email!!),
+                    "mail" to (if (email.isNotEmpty() && email != user.email) email else user.email!!),
                     "nombre" to nombre,
                     "edad" to edad,
                     "peso" to peso,
@@ -208,11 +208,11 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
                     "genero" to genero
                 )
 
-                val documentId = if (email.isNotEmpty() && email != user.email) email else user.email!!
-                Log.d("EditarPerfilActivity", "Actualizando datos del perfil en Firestore para el usuario con email: $documentId")
+                val idUsuario = user.email ?: ""
+                Log.d("EditarPerfilActivity", "Actualizando datos del perfil en Firestore para el usuario con email: $idUsuario")
                 Log.d("EditarPerfilActivity", "Datos del perfil a actualizar: $userData")
 
-                db.collection("usuarios").document(documentId)
+                db.collection("usuarios").document(idUsuario)
                     .set(userData)
                     .addOnSuccessListener {
                         Log.d("EditarPerfilActivity", "Datos del perfil actualizados exitosamente en Firestore")
