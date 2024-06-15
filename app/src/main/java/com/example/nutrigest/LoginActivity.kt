@@ -29,8 +29,6 @@ class LoginActivity : AppCompatActivity() {
 
     //Función setup
     private fun setup(){
-        //Título de la Activity
-        title = "Autenticación"
 
         //Inicializamos los elementos visuales del Activity
         val btnSignup = findViewById<Button>(R.id.btn_signup)

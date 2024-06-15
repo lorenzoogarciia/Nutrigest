@@ -51,7 +51,7 @@
             android:textColorHint="@color/white"
             android:backgroundTint="@color/black_background"
             android:textAlignment="center"
-            tools:ignore="Autofill,HardcodedText" />
+            tools:ignore="Autofill,HardcodedText"/>
 
         <EditText
             android:id="@+id/cmp_passwd"
