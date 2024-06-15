@@ -79,6 +79,16 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
         }catch (e: FirebaseAuthException){
             showAlert("Error al obtener datos: ${e.message}")
         }
+
+        val btnEditarPerfil = findViewById<TextView>(R.id.btn_editar_perfil)
+
+        btnEditarPerfil.setOnClickListener {
+            val editarPerfilIntent = Intent(this, EditarPerfilActivity::class.java).apply {
+                putExtra("mail", email)
+            }
+            startActivity(editarPerfilIntent)
+            Toast.makeText(this, "Editar Perfil", Toast.LENGTH_SHORT).show()
+        }
     }
 
     //Función que controla la navegación del Navigation Drawer
