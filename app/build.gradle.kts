@@ -34,6 +34,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
 }
 
 dependencies {
@@ -46,6 +47,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics:21.5.1")
     implementation("com.google.firebase:firebase-firestore:24.10.3")
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
     implementation("androidx.activity:activity:1.8.0")
