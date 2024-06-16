@@ -104,7 +104,9 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
 
         //Lógica del botón volver
         btnVolver.setOnClickListener {
-            val perfilIntent = Intent(this, PerfilActivity::class.java)
+            val perfilIntent = Intent(this, PerfilActivity::class.java).apply {
+                putExtra("mail", email)
+            }
             startActivity(perfilIntent)
             Toast.makeText(this, "Login", Toast.LENGTH_SHORT).show()
         }
