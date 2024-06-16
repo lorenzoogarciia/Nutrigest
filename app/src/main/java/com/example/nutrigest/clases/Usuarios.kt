@@ -20,10 +20,12 @@ class Usuarios (
 
 
 
+    //Función que calcula el IMC del usuario
     fun calcularIMC(): Double {
         return peso / (altura * altura)
     }
 
+    //Función que calcula las calorías diarias que necesita el usuario
     fun calcularCaloriasDiarias(): Double {
         var calorias = 0.0
         when (actividad) {
@@ -36,6 +38,7 @@ class Usuarios (
         return calorias * calcularTMB()
     }
 
+    //Función que calcula el TMB del usuario
     fun calcularTMB(): Double {
         return when {
             edad < 18 -> 88.362 + (13.397 * peso) + (4.799 * altura) - (5.677 * edad)
@@ -43,39 +46,28 @@ class Usuarios (
         }
     }
 
+    //Función que calcula el peso ideal del usuario
     fun calcularPesoIdeal(): Double {
         return 22 * (altura * altura)
     }
 
+    //Función que calcula el peso objetivo del usuario
     fun calcularPesoObjetivo(): Double {
         return pesoObjetivo
     }
 
+    //Función que calcula el IMC objetivo del usuario
     fun calcularIMCObjetivo(): Double {
         return pesoObjetivo / (altura * altura)
     }
 
-    private fun actualizarFirestore(campo: String, valor: Any) {
-        //Creamos una instancia de la base de datos
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-        //Actualizamos el campo en la base de datos
-        db.collection("usuarios").document("mail")
-            .update(campo, valor)
-            .addOnSuccessListener {
-                Toast.makeText(null, "Campo $campo actualizado correctamente", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(null, "Error al actualizar el campo $campo: $e", Toast.LENGTH_SHORT).show()
-            }
-    }
-
+    //Función que crea un ID para la dieta del usuario al ser creada
     fun crearIdDieta(nombre: String): String {
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         val fechaActual = Date()
         val fechaFormateada = sdf.format(fechaActual)
         return "Dieta ${nombre} ${fechaFormateada}"
     }
-
 
     override fun toString(): String {
         return "Usuario(nombre='$nombre', edad=$edad, dirección='$address', altura=$altura, mail='$mail'," +

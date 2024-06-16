@@ -23,11 +23,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     OnItemActionListener {
+    //Variables del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+
+    //Variables para el RecyclerView de los clientes
     private lateinit var usuariosAdapter: UsuariosAdapter
     private lateinit var recyclerView: RecyclerView
 
+    //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,26 +51,31 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val navigationView: NavigationView = findViewById(R.id.nav_view_clientes)
         navigationView.setNavigationItemSelectedListener(this)
 
+        //Recuperamos el mail del nutricionista
         val bundle = intent.extras
         val email: String?  = bundle?.getString("mail")
 
         setup(email.toString())
     }
 
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?){
         try {
+            //Actualizamos los datos del nutricionista en la interfaz
             actualizarDatosUsuarios(email.toString())
         }catch (e: Exception){
-            showAlert("Error al actualizar datos de usuario: ${e.message}")
+            mostrarAlerta("Error al actualizar datos de usuario: ${e.message}")
         }
 
+        //Mostramos los clientes en la interfaz
         try {
             mostrarClientes()
         }catch (e: Exception){
-            showAlert("Error al mostrar los clientes: ${e.message}")
+            mostrarAlerta("Error al mostrar los clientes: ${e.message}")
         }
     }
 
+    //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -114,13 +123,14 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -138,17 +148,23 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return super.onOptionsItemSelected(item)
     }
 
+    //Función que actualiza la interfaz cuando se elimina un usuario
+    override fun onItemDeleted() {
+        mostrarClientes()
+    }
+
+    //Función que actualiza los datos del nutricionista en la interfaz
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("nutricionistas").document(mail)
+        val mailNutricionista = db.collection("nutricionistas").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
@@ -158,39 +174,41 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtClientes = findViewById<TextView>(R.id.txt_clientes)
                     txtClientes.text = "¡Bienvenido ${nombre}, estos son tus clientes! "
                 } else {
-                    Toast.makeText(this, "No se encontraron datos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "No se encontraron clientes", Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Error al obtener datos: $exception", Toast.LENGTH_SHORT).show()
+                mostrarAlerta("Error al obtener datos: ${exception.message}")
             }
         }catch (FireBaseException: Exception){
-            Toast.makeText(this, "Error al Actualizar UI: ${FireBaseException.message}", Toast.LENGTH_SHORT).show()
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
     //Función que muestra los clientes en la interfaz
     private fun mostrarClientes() {
-        db.collection("usuarios").get().addOnSuccessListener { result ->
+        //Obtenemos los clientes de la base de datos y los guardamos en un ArrayList
+        db.collection("usuarios").get().addOnSuccessListener { documentos ->
             val usuariosList = ArrayList<Usuarios>()
-            for (document in result) {
-                val usuario = document.toObject(Usuarios::class.java)
+            for (documento in documentos) {
+                val usuario = documento.toObject(Usuarios::class.java)
                 usuariosList.add(usuario)
             }
-            usuariosAdapter = UsuariosAdapter(usuariosList, this)
+            //Configuramos el adaptador y el RecyclerView de los clientes
+            usuariosAdapter = UsuariosAdapter(usuariosList, this, this)
             recyclerView = findViewById(R.id.recyclerView_Clientes)
             recyclerView.layoutManager = LinearLayoutManager(this)
             recyclerView.adapter = usuariosAdapter
         }.addOnFailureListener { exception ->
-            showAlert("Error al mostrar los clientes: ${exception.message}")
+            mostrarAlerta("Error al mostrar los clientes: ${exception.message}")
         }
     }
 
     //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)
@@ -199,7 +217,5 @@ class ClientesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         dialog.show()
     }
 
-    override fun onItemDeleted() {
-        mostrarClientes()
-    }
+
 }

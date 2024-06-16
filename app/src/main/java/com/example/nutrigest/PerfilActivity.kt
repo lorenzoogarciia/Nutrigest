@@ -71,13 +71,13 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
         try {
             actualizarDatosUsuarios(email.toString())
         }catch (e: FirebaseAuthException){
-            showAlert("Error al obtener datos: ${e.message}")
+            mostrarAlerta("Error al obtener datos: ${e.message}")
         }
 
         try {
             mostrarDatosUsuario(email.toString())
         }catch (e: FirebaseAuthException){
-            showAlert("Error al obtener datos: ${e.message}")
+            mostrarAlerta("Error al obtener datos: ${e.message}")
         }
 
         val btnEditarPerfil = findViewById<TextView>(R.id.btn_editar_perfil)
@@ -91,7 +91,7 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
         }
     }
 
-    //Función que controla la navegación del Navigation Drawer
+    //Función que controla la navegación del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_home_one -> {
@@ -121,7 +121,7 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
@@ -131,14 +131,14 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
     //Método para actualizar los datos de los usuarios en la interfaz
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("usuarios").document(mail)
+        val mailUsuario = db.collection("usuarios").document(mail)
 
         try {
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailUsuario.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_usuarios_nombre)
@@ -148,17 +148,17 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtPerfil = findViewById<TextView>(R.id.txt_perfilusuarios)
                     txtPerfil.text = "¡Bienvenido a tu perfil ${nombre}! "
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert( "Error al obtener datos: $exception")
+                mostrarAlerta( "Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
@@ -166,16 +166,17 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
     private fun mostrarDatosUsuario(mail: String) {
         val idUsuario = mail
         if (idUsuario != null) {
-            // Inicializa aquí, asegurándote de que se hace solo una vez.
+
             recyclerView = findViewById(R.id.recyclerView_perfilusuarios)
             recyclerView.layoutManager = LinearLayoutManager(this)
             perfilUsuariosAdapter = PerfilUsuariosAdapter(emptyList())
             recyclerView.adapter = perfilUsuariosAdapter
 
             try {
+                //Lanzamos la consulta a la base de datos
                 db.collection("usuarios").document(idUsuario).get()
-                    .addOnSuccessListener { document ->
-                        val usuario = document.toObject(Usuarios::class.java)
+                    .addOnSuccessListener { documento ->
+                        val usuario = documento.toObject(Usuarios::class.java)
                         if (usuario != null) {
                             val datosUsuario = listOf(
                                 "Nombre: ${usuario.nombre}",
@@ -189,15 +190,15 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
                                 "Teléfono: ${usuario.telefono}",
                                 "Dirección: ${usuario.address}"
                             )
-                            // Actualiza los datos del adaptador después de inicializarlo.
+                            //Actualizamos los datos en el RecyclerView
                             perfilUsuariosAdapter.actualizarDatos(datosUsuario)
                         }
                     }
                     .addOnFailureListener { e ->
-                        showAlert("Error al obtener los datos del usuario: ${e.message}")
+                        mostrarAlerta("Error al obtener los datos del usuario: ${e.message}")
                     }
             } catch (e: Exception) {
-                showAlert("Error al obtener los datos del usuario: ${e.message}")
+                mostrarAlerta("Error al obtener los datos del usuario: ${e.message}")
             }
         }
     }
@@ -220,7 +221,7 @@ class PerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSele
         }
 
         //Función que muestra los mensajes de alerta
-        private fun showAlert(mensaje: String) {
+        private fun mostrarAlerta(mensaje: String) {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Error")
             builder.setMessage(mensaje)

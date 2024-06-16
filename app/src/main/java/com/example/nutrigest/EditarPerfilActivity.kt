@@ -10,13 +10,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -33,7 +30,7 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
-    //Instancia de la base de datos
+    //Instancia de la base de datos y autenticación
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     @SuppressLint("MissingInflatedId")
@@ -62,6 +59,7 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
         val bundle = intent.extras
         val email  = bundle?.getString("mail")
 
+        //Función setup que maneja inicializa los elementos en pantalla y la lógica de la actividad
         setup(email)
 
     }
@@ -82,17 +80,17 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
         val btnVolver = findViewById<Button>(R.id.btn_volver)
         val btnActualizar = findViewById<Button>(R.id.btn_actualizar_perfil)
 
+        //Spinner de Actividad
         ArrayAdapter.createFromResource(
             this,
             R.array.opciones_actividad,
             R.layout.spinner_registro
         ).also { adapter ->
-            // Especificar el layout a usar cuando aparece la lista de opciones
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Aplicar el adaptador al spinner
             spinnerActividad.adapter = adapter
         }
 
+        //Spinner de Género
         ArrayAdapter.createFromResource(
             this,
             R.array.opciones_genero,
@@ -104,14 +102,19 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
             spinnerGenero.adapter = adapter
         }
 
+        //Lógica del botón volver
         btnVolver.setOnClickListener {
             val perfilIntent = Intent(this, PerfilActivity::class.java)
             startActivity(perfilIntent)
             Toast.makeText(this, "Login", Toast.LENGTH_SHORT).show()
         }
 
+        //Lógica del botón actualizar perfil
         btnActualizar.setOnClickListener {
+            //Lanzamos la actualización en segundo plano, ya que requiere reautenticación cuando
+            //pulsamos el botón por si se cambia la contraseña
             currentPasswordDialog { currentPassword ->
+                //Guardamos los valores de los campos
                 val email = cmpMail.text.toString()
                 val nuevaContrasenia = cmpContrasenia.text.toString()
                 val nombre = cmpNombre.text.toString()
@@ -124,27 +127,29 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
                 val actividad = spinnerActividad.selectedItem.toString()
                 val genero = spinnerGenero.selectedItem.toString()
 
-                val user = auth.currentUser
+                //Recogemos el usuario que ha iniciado sesión para la reautenticación
+                val usuarioAutenticado = auth.currentUser
 
-                if (user != null) {
-                    val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
-                    user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+                //Si el usuario está autenticado, procedemos a reautenticar y actualizar los datos
+                if (usuarioAutenticado != null) {
+                    val credencial = EmailAuthProvider.getCredential(usuarioAutenticado.email!!, currentPassword)
+                    usuarioAutenticado.reauthenticate(credencial).addOnCompleteListener { reauthTask ->
+                        //Si la reautenticación es exitosa, actualizamos los datos del perfil
                         if (reauthTask.isSuccessful) {
                             Log.d("EditarPerfilActivity", "Reautenticación exitosa")
-                            updateUserProfile(user, email, nuevaContrasenia, nombre, edad, peso, pesoObjetivo, altura, address, telefono, actividad, genero)
+                            actualizarPerfil(usuarioAutenticado, email, nuevaContrasenia, nombre, edad, peso, pesoObjetivo, altura, address, telefono, actividad, genero)
                         } else {
-                            Log.e("EditarPerfilActivity", "Error de reautenticación: ${reauthTask.exception?.message}")
-                            Toast.makeText(this, "Error de reautenticación: ${reauthTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                            mostrarAlerta("Error de reautenticación: ${reauthTask.exception?.message}")
                         }
                     }
                 } else {
-                    Log.e("EditarPerfilActivity", "Usuario no autenticado")
-                    Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+                    mostrarAlerta("Usuario no autenticado")
                 }
             }
         }
    }
 
+    //Función que nos muestra un diálogo para reautenticar al usuario introduciendo su contraseña actual
     @SuppressLint("MissingInflatedId")
     private fun currentPasswordDialog(callback: (String) -> Unit){
         val dialogView = layoutInflater.inflate(R.layout.dialog_password, null)
@@ -160,43 +165,48 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
                 if (password.isNotEmpty()){
                     callback(password)
                 }else{
-                    showAlert("Por favor, ingrese su contraseña")
+                    mostrarAlerta("Por favor, ingrese su contraseña")
                 }
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun updateUserProfile(user: FirebaseUser, email: String, nuevaContrasenia: String,
-                                  nombre: String, edad: Int, peso: Double, pesoObjetivo: Double, altura: Int, address: String,
-                                  telefono: String, actividad: String, genero: String) {
-        val updateTasks = mutableListOf<Task<Void>>()
+    //Función que actualiza los datos del perfil en Firestore y Auth
+    private fun actualizarPerfil(usuarioAutenticado: FirebaseUser, email: String, nuevaContrasenia: String,
+                                 nombre: String, edad: Int, peso: Double, pesoObjetivo: Double, altura: Int, address: String,
+                                 telefono: String, actividad: String, genero: String) {
 
-        if (email.isNotEmpty() && email != user.email) {
-            updateTasks.add(user.updateEmail(email).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("EditarPerfilActivity", "Email actualizado exitosamente")
+        val tareasActualizacion = mutableListOf<Task<Void>>()
+
+        //Si el email no está vacío y es diferente al actual, actualizamos el email
+        if (email.isNotEmpty() && email != usuarioAutenticado.email) {
+            tareasActualizacion.add(usuarioAutenticado.updateEmail(email).addOnCompleteListener { tarea ->
+                if (tarea.isSuccessful) {
+                    Toast.makeText(this, "Email actualizado exitosamente", Toast.LENGTH_SHORT).show()
                 } else {
-                    Log.e("EditarPerfilActivity", "Error al actualizar email: ${task.exception?.message}")
+                    mostrarAlerta("Error al actualizar email: ${tarea.exception?.message}")
                 }
             })
         }
 
+        //Si la nueva contraseña no está vacía, actualizamos la contraseña
         if (nuevaContrasenia.isNotEmpty()) {
-            updateTasks.add(user.updatePassword(nuevaContrasenia).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("EditarPerfilActivity", "Contraseña actualizada exitosamente")
+            tareasActualizacion.add(usuarioAutenticado.updatePassword(nuevaContrasenia).addOnCompleteListener { tarea ->
+                if (tarea.isSuccessful) {
+                    Toast.makeText(this, "Contraseña actualizada exitosamente", Toast.LENGTH_SHORT).show()
                 } else {
-                    Log.e("EditarPerfilActivity", "Error al actualizar contraseña: ${task.exception?.message}")
+                    mostrarAlerta("Error al actualizar contraseña: ${tarea.exception?.message}")
                 }
             })
         }
 
-        Tasks.whenAllComplete(updateTasks).addOnCompleteListener { allTasks ->
-            if (allTasks.isSuccessful) {
-                Log.d("EditarPerfilActivity", "Todas las tareas de actualización de Auth completadas exitosamente")
-                val userData = hashMapOf(
-                    "mail" to (if (email.isNotEmpty() && email != user.email) email else user.email!!),
+        //Esperamos a que todas las tareas de actualización se completen
+        Tasks.whenAllComplete(tareasActualizacion).addOnCompleteListener { tareas ->
+            if (tareas.isSuccessful) {
+                //Si todas las tareas se completan exitosamente, actualizamos los datos del perfil en Firestore
+                val datosUsuario = hashMapOf(
+                    "mail" to (if (email.isNotEmpty() && email != usuarioAutenticado.email) email else usuarioAutenticado.email!!),
                     "nombre" to nombre,
                     "edad" to edad,
                     "peso" to peso,
@@ -208,33 +218,29 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
                     "genero" to genero
                 )
 
-                val idUsuario = user.email ?: ""
-                Log.d("EditarPerfilActivity", "Actualizando datos del perfil en Firestore para el usuario con email: $idUsuario")
-                Log.d("EditarPerfilActivity", "Datos del perfil a actualizar: $userData")
+                val idUsuario = usuarioAutenticado.email ?: ""
 
                 db.collection("usuarios").document(idUsuario)
-                    .set(userData)
+                    .set(datosUsuario)
                     .addOnSuccessListener {
-                        Log.d("EditarPerfilActivity", "Datos del perfil actualizados exitosamente en Firestore")
                         Toast.makeText(this, "Perfil actualizado exitosamente", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
-                        Log.e("EditarPerfilActivity", "Error al actualizar perfil en Firestore: ${e.message}")
-                        Toast.makeText(this, "Error al actualizar perfil: ${e.message}", Toast.LENGTH_SHORT).show()
+                        mostrarAlerta("Error al actualizar perfil: ${e.message}")
                     }
             } else {
-                allTasks.exception?.let {
-                    Log.e("EditarPerfilActivity", "Error al completar tareas de actualización: ${it.message}")
+                tareas.exception?.let {
+                    mostrarAlerta("Error al completar tareas de actualización: ${it.message}")
                 }
             }
         }.addOnFailureListener { exception ->
-            Log.e("EditarPerfilActivity", "Error al completar tareas de actualización: ${exception.message}")
+            mostrarAlerta("Error al reautenticar al usuario: ${exception.message}")
         }
     }
 
 
 
-    //Función que maneja la lógica del Navigation Drawer
+    //Función que maneja la lógica del Menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_home_one -> {
@@ -268,7 +274,7 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
@@ -276,7 +282,7 @@ class EditarPerfilActivity : AppCompatActivity(),  NavigationView.OnNavigationIt
     }
 
     //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String) {
+    private fun mostrarAlerta(mensaje: String) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

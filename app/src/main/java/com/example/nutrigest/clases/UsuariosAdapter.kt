@@ -1,21 +1,23 @@
 package com.example.nutrigest.clases
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.R
 import com.example.nutrigest.interfaces.OnItemActionListener
 import com.google.firebase.firestore.FirebaseFirestore
 
-class UsuariosAdapter(private val usuariosList: List<Usuarios>, private val itemActionListener: OnItemActionListener) : RecyclerView.Adapter<UsuariosAdapter.UsuarioViewHolder>() {
+class UsuariosAdapter(private val usuariosList: List<Usuarios>, private val itemActionListener: OnItemActionListener, private val context: Context) : RecyclerView.Adapter<UsuariosAdapter.UsuarioViewHolder>() {
 
     class UsuarioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-
+        //Variables para los textos del RecyclerView
         var txtNombre: TextView = itemView.findViewById(R.id.txt_nombre)
         var txtEdad: TextView = itemView.findViewById(R.id.txt_edad)
         var txtAltura: TextView = itemView.findViewById(R.id.txt_altura)
@@ -38,6 +40,7 @@ class UsuariosAdapter(private val usuariosList: List<Usuarios>, private val item
     override fun onBindViewHolder(holder: UsuarioViewHolder, position: Int) {
         //Instancia de la Base de datos
         val db = FirebaseFirestore.getInstance()
+
         //Textos del RecyclerView
         val usuarioActual = usuariosList[position]
         holder.txtNombre.text = "Nombre: ${usuarioActual.nombre}"
@@ -53,19 +56,29 @@ class UsuariosAdapter(private val usuariosList: List<Usuarios>, private val item
 
         //Botón para eliminar usuario
         holder.btn_eliminar_usuario.setOnClickListener {
-            // Eliminar usuario
+            //Variable para el mail del usuario seleccionado
             val usuarioSeleccionado = usuarioActual.mail
 
+            //Eliminamos al usuario de la base de datos
             db.collection("usuarios").document(usuarioSeleccionado).delete()
                 .addOnSuccessListener {
-                    Toast.makeText(holder.itemView.context, "Usuario eliminado", Toast.LENGTH_SHORT).show()
-                    itemActionListener.onItemDeleted()
+                    Toast.makeText(context, "Usuario eliminado correctamente", Toast.LENGTH_SHORT).show()
+                    itemActionListener.onItemDeleted() //Actualizamos el RecyclerView
                 }
-                .addOnFailureListener { e ->
-                    Toast.makeText(holder.itemView.context, "Error al eliminar Usuario: ${e.message}", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener {
+                    mostrarAlerta("Error al eliminar usuario", context)
                 }
-
         }
+    }
+
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String, context: Context) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
     override fun getItemCount() = usuariosList.size

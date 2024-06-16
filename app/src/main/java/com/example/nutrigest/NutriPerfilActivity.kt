@@ -59,27 +59,28 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
-        //Llamada a la función setup
+        //Llamamos a la función setup
         setup(mail.toString())
     }
 
     //Función que inicializa todos los elementos y funciones de la Activity
     private fun setup(email: String?){
-        //Llamada a las funciones que actualizan la UI y muestran los datos del Nutricionista
+        //Función que actualiza los datos de la interfaz
         try {
             actualizarDatosUsuarios(email.toString())
         }catch (FireBaseException: Exception){
-            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
 
+        //Función que muestra los datos del Nutricionista
         try {
             mostrarDatosNutricionista(email.toString())
         }catch (FireBaseException: Exception){
-            showAlert("Error al Mostrar Datos del Nutricionista: ${FireBaseException.message}")
+            mostrarAlerta("Error al Mostrar Datos del Nutricionista: ${FireBaseException.message}")
         }
     }
 
-    //Función que maneja el comportamiento de los botones del menú lateral
+    //Función que maneja los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -127,13 +128,14 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -154,15 +156,15 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     //Función que actualiza los datos de la UI
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("nutricionistas").document(mail)
+        val mailNutricionista = db.collection("nutricionistas").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
@@ -172,17 +174,17 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtNutriPerfil = findViewById<TextView>(R.id.txt_perfilnutricionistas)
                     txtNutriPerfil.text = "¡Bienvenido a tu perfil ${nombre}! "
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-               showAlert("Error al obtener datos: $exception")
+               mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta( "Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
@@ -190,22 +192,23 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     private fun mostrarDatosNutricionista(mail: String) {
         val idNutricionista = mail
         if (idNutricionista != null) {
-            // Inicialización de los datos del nutricionista
+            // Inicializamos el adaptador y el RecyclerView
             recyclerView = findViewById(R.id.recyclerView_perfilnutricionistas)
             recyclerView.layoutManager = LinearLayoutManager(this)
             perfilNutricionistasAdapter = PerfilNutricionistasAdapter(emptyList())
             recyclerView.adapter = perfilNutricionistasAdapter
 
             try {
+                // Obtenemos los datos del nutricionista de la BBDD
                 db.collection("nutricionistas").document(idNutricionista).get()
-                    .addOnSuccessListener { document ->
-                        val nutricionista = document.toObject(Nutricionistas::class.java)
+                    .addOnSuccessListener { documento ->
+                        val nutricionista = documento.toObject(Nutricionistas::class.java)
                         if (nutricionista != null) {
                             val datosNutricionista = listOf(
                                 "Nombre: ${nutricionista.nombre}",
                                 "Mail: ${nutricionista.mail}"
                             )
-                            // Actualiza los datos del adaptador después de inicializarlo.
+                            // Actualizamos los datos del adaptador después de inicializarlo.
                             perfilNutricionistasAdapter.actualizarDatos(datosNutricionista)
 
                             // Actualizamos la línea que nos muestra el total de clientes en la interfaz
@@ -214,19 +217,20 @@ class NutriPerfilActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                                 numClientesTextView.text = "Clientes Totales: ${usuarios.size()}"
                             }
                         } else {
-                            showAlert("No se encontraron datos")
+                            mostrarAlerta("No se encontraron datos")
                         }
                     }
                     .addOnFailureListener { e ->
-                        showAlert("Error al obtener los datos del usuario: ${e.message}")
+                        mostrarAlerta("Error al obtener los datos del usuario: ${e.message}")
                     }
             } catch (e: Exception) {
-                showAlert("Error al obtener los datos del usuario: ${e.message}")
+                mostrarAlerta("Error al obtener los datos del usuario: ${e.message}")
             }
         }
     }
 
-    private fun showAlert(mensaje: String){
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

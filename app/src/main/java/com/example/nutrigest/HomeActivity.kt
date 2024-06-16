@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    //Variables del Drawer Layout
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
@@ -42,22 +43,26 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView: NavigationView = findViewById(R.id.nav_view_usuarios)
         navigationView.setNavigationItemSelectedListener(this)
 
-        //Setup
+        //Recibimos el email del usuario que ha iniciado sesión
         val bundle = intent.extras
         val email: String?  = bundle?.getString("mail")
 
+        //Función setup para inicializar los elementos de la Activity y su backend
         setup(email.toString())
 
 
     }
 
-   private fun setup(email: String?){
+   private fun setup(email: String?) {
+       try {
+           //Llamada a la función que actualiza los datos del usuario en la interfaz
+           actualizarDatosUsuarios(email.toString())
+       } catch (e: Exception) {
+           mostrarAlerta("Error al actualizar datos: ${e.message}")
+       }
+   }
 
-       actualizarDatosUsuarios(email.toString())
-        }
-
-
-
+    //Función que maneja la lógica de navegación del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val email: String = intent.getStringExtra("mail").toString()
         when(item.itemId){
@@ -87,13 +92,14 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones necesarias para el correcto funcionamiento del Drawer Layout
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -115,15 +121,15 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @SuppressLint("SetTextI18n")
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("usuarios").document(mail)
+        val mailUsuario = db.collection("usuarios").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailUsuario.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_usuarios_nombre)
@@ -133,21 +139,22 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtHome = findViewById<TextView>(R.id.txt_home)
                     txtHome.text = "¡Bienvenido ${nombre}! "
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
-    private fun showAlert(mensaje: String){
+    //Función que muestra los mensajes de error
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

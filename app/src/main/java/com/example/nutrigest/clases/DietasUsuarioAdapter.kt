@@ -1,15 +1,11 @@
 package com.example.nutrigest.clases
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrigest.R
-import com.example.nutrigest.interfaces.OnItemActionListener
-import com.google.firebase.firestore.FirebaseFirestore
 
 class DietasUsuarioAdapter(
     private val dietasList: List<Dietas>) :
@@ -22,7 +18,7 @@ class DietasUsuarioAdapter(
 
     override fun onBindViewHolder(holder: DietasViewHolder, position: Int) {
         val dieta = dietasList[position]
-        val allMeals = listOf(
+        val comidas = listOf(
             "Desayuno" to dieta.Desayuno,
             "Media mañana" to dieta.MediaManana,
             "Almuerzo" to dieta.Almuerzo,
@@ -30,13 +26,13 @@ class DietasUsuarioAdapter(
             "Cena" to dieta.Cena
         )
 
-        val mealsDetails = allMeals.joinToString("\n") { (mealName, meals) ->
-            if (meals.isNotEmpty()) {
-                "$mealName:\n" + meals.joinToString("\n") { alimento ->
-                    "${alimento.nombre}: ${formatAlimentoDetails(alimento)}"
+        val mealsDetails = comidas.joinToString("\n") { (nombreComida, comida) ->
+            if (comida.isNotEmpty()) {
+                "$nombreComida:\n" + comida.joinToString("\n") { alimento ->
+                    "${alimento.nombre}: ${formatearAlimento(alimento)}"
                 }
             } else {
-                "$mealName: Sin alimentos"
+                "$nombreComida: Sin alimentos"
             }
         }
 
@@ -46,7 +42,7 @@ class DietasUsuarioAdapter(
 
     override fun getItemCount() = dietasList.size
 
-    private fun formatAlimentoDetails(alimento: Alimentos): String {
+    private fun formatearAlimento(alimento: Alimentos): String {
         return "${alimento.calorias.toInt()} kcal"
     }
 

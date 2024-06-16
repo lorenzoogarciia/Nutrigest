@@ -10,13 +10,10 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +35,7 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     private lateinit var recyclerView: RecyclerView
     private lateinit var alimentosAdapter: AlimentosAdapter
 
-    //Instancia de la base de datos de Firebase
+    //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,24 +58,26 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         recyclerView = findViewById(R.id.recyclerView_alimentos)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        //Recuperamos el mail del nutricionista
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
         setup(mail.toString())
     }
 
-    //Función que inicializa todos los elementos y funciones de la Activity
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?){
         try {
             //Función que actualiza los datos de la UI
             actualizarDatosUsuarios(email.toString())
         }catch (e: Exception){
-            showAlert("Error al cargar los datos: ${e.message}")
+            mostrarAlerta("Error al cargar los datos: ${e.message}")
         }
 
-        //Inicializar botón de crear alimento
+        //Inicializamos el botón de crear alimento
         val btnCrearAlimento = findViewById<Button>(R.id.btn_crear_alimento)
 
+        //Lógica del botón de crear alimento
         btnCrearAlimento.setOnClickListener {
             val crearAlimentoIntent = Intent(this, CrearAlimentoActivity::class.java).apply {
                 putExtra("mail", email)
@@ -87,80 +86,6 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             Toast.makeText(this, "Crear Alimento", Toast.LENGTH_SHORT).show()
         }
 
-
-    }
-
-    //Función que actualiza los datos de la UI
-    @SuppressLint("SetTextI18n")
-    private fun actualizarDatosUsuarios(mail: String){
-        val mail = mail
-        val docRef = db.collection("nutricionistas").document(mail)
-
-        try {
-
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
-                    //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
-
-                    //Variables que actualizan los datos en la interfaz del Navheader
-                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
-                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
-
-                    //Actualización de los datos en la interfaz del navheader
-                    nombreUI.text = nombre
-                    emailUI.text = mail
-
-                    //Actualización de los datos en la interfaz del HomeActivity
-                    val txtNutriPerfil = findViewById<TextView>(R.id.txt_alimentos)
-                    txtNutriPerfil.text = "¡Bienvenido a los alimentos creados ${nombre}!"
-
-                    //Función que carga los alimentos en la interfaz
-                    cargarAlimentos()
-                } else {
-                    showAlert("No se encontraron datos")
-                }
-            }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
-            }
-        }catch (FireBaseException: Exception){
-            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
-        }
-    }
-
-    //Función que recoge los datos de la base de datos
-    private fun cargarAlimentos() {
-        db.collection("alimentos").get().addOnSuccessListener { result ->
-            val alimentosList = result.map { document ->
-                Alimentos(
-                    nombre = document.getString("nombre") ?: "",
-                    cantidad = document.getDouble("cantidad") ?: 0.0,
-                    calorias = document.getDouble("calorias") ?: 0.0,
-                    kilojulios = document.getDouble("kilojulios") ?: 0.0,
-                    hidratos = document.getDouble("hidratos") ?: 0.0,
-                    proteinas = document.getDouble("proteinas") ?: 0.0,
-                    grasas = document.getDouble("grasas") ?: 0.0,
-                    azucar = document.getDouble("azucar") ?: 0.0,
-                    fibra = document.getDouble("fibra") ?: 0.0,
-                    sal = document.getDouble("sal") ?: 0.0
-                )
-            }
-            alimentosAdapter = AlimentosAdapter(alimentosList, this)
-            recyclerView.adapter = alimentosAdapter
-        }.addOnFailureListener { exception ->
-            showAlert("Error al obtener datos: $exception")
-        }
-    }
-
-    //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Error")
-        builder.setMessage(mensaje)
-        builder.setPositiveButton("Aceptar", null)
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
     }
 
     //Función que maneja la lógica de los elementos del menú lateral
@@ -209,7 +134,7 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
@@ -222,6 +147,7 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         actualizarDatosUsuarios(mail)
     }
 
+    //Funciónes para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -237,6 +163,80 @@ class AlimentosActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //Función que actualiza los datos de la UI
+    @SuppressLint("SetTextI18n")
+    private fun actualizarDatosUsuarios(mail: String){
+        val mail = mail
+        val idNutricionista = db.collection("nutricionistas").document(mail)
+
+        try {
+
+            idNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
+                    //Variables que recogen los datos de la base de datos
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
+
+                    //Variables que actualizan los datos en la interfaz del Navheader
+                    val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
+                    val emailUI = findViewById<TextView>(R.id.navheader_nutricionistas_email)
+
+                    //Actualización de los datos en la interfaz del navheader
+                    nombreUI.text = nombre
+                    emailUI.text = mail
+
+                    //Actualización del mensaje de bienvenida
+                    val txtNutriPerfil = findViewById<TextView>(R.id.txt_alimentos)
+                    txtNutriPerfil.text = "¡Bienvenido a los alimentos creados ${nombre}!"
+
+                    //Función que carga los alimentos en la interfaz
+                    cargarAlimentos()
+                } else {
+                    mostrarAlerta("No se encontraron datos")
+                }
+            }.addOnFailureListener { exception ->
+                mostrarAlerta("Error al obtener datos: $exception")
+            }
+        }catch (FireBaseException: Exception){
+            mostrarAlerta( "Error al Actualizar UI: ${FireBaseException.message}")
+        }
+    }
+
+    //Función que recoge los datos de la base de datos
+    private fun cargarAlimentos() {
+        //Obtenemos los alimentos de la base de datos y los cargamos en el RecyclerView
+        db.collection("alimentos").get().addOnSuccessListener { documentos ->
+            val alimentosList = documentos.map { documento ->
+                Alimentos(
+                    nombre = documento.getString("nombre") ?: "",
+                    cantidad = documento.getDouble("cantidad") ?: 0.0,
+                    calorias = documento.getDouble("calorias") ?: 0.0,
+                    kilojulios = documento.getDouble("kilojulios") ?: 0.0,
+                    hidratos = documento.getDouble("hidratos") ?: 0.0,
+                    proteinas = documento.getDouble("proteinas") ?: 0.0,
+                    grasas = documento.getDouble("grasas") ?: 0.0,
+                    azucar = documento.getDouble("azucar") ?: 0.0,
+                    fibra = documento.getDouble("fibra") ?: 0.0,
+                    sal = documento.getDouble("sal") ?: 0.0
+                )
+            }
+            alimentosAdapter = AlimentosAdapter(alimentosList, this)
+            recyclerView.adapter = alimentosAdapter
+        }.addOnFailureListener { exception ->
+            mostrarAlerta("Error al obtener datos: $exception")
+        }
+    }
+
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
 }

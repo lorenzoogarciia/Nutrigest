@@ -52,7 +52,8 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         navigationView.setNavigationItemSelectedListener(this)
 
 
-        //Recuperamos el id de la dieta y lo guardamos en una variable
+        //Recuperamos el id de la dieta, el mail del usuario del que queremos ver la dieta
+        // y el id del nutricionista y lo guardamos en una variable
         val idDieta = intent.getStringExtra("idDieta")
         val mailUsuario = intent.getStringExtra("mailUsuario")
         val mailNutricionista = intent.getStringExtra("mailNutricionista")
@@ -66,7 +67,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         try {
         actualizarDatosUsuarios(mailNutricionista.toString(), idDieta.toString())
     } catch (e: Exception) {
-        showAlert("Error al actualizar datos: ${e.message}")
+        mostrarAlerta("Error al actualizar datos: ${e.message}")
     }
 
         // Inicialización del RecyclerView para las dietas
@@ -76,21 +77,20 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         // Lista para almacenar las dietas obtenidas de Firestore
         val dietasList = mutableListOf<Dietas>()
 
-        // Inicializar el adaptador con la lista vacía inicialmente
-        val dietasAdapter = DietasAdapter(dietasList, this, mailUsuario.toString(), idDieta.toString())
+        // Inicializamos el adaptador con la lista vacía inicialmente
+        val dietasAdapter = DietasAdapter(dietasList, this, mailUsuario.toString(), idDieta.toString(), this)
         recyclerView.adapter = dietasAdapter
 
-        Log.d("VerDietaActivity", "Email: $mailUsuario, idDieta: $idDieta")
-
-        // Obtener los detalles de la dieta específica
+        // Obtenemos los detalles de la dieta específica
         db.collection("usuarios")
             .document(mailUsuario.toString())
             .collection("dietas")
             .document(idDieta.toString())
             .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val dieta = documentSnapshot.toObject(Dietas::class.java)
+            .addOnSuccessListener { dietaBD ->
+                if (dietaBD.exists()) {
+                    //Si la dieta existe, la añadimos a la lista y notificamos al adaptador para mostrarla
+                    val dieta = dietaBD.toObject(Dietas::class.java)
                     dieta?.let {
                         dietasList.add(it)
                         dietasAdapter.notifyDataSetChanged()
@@ -157,13 +157,14 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -184,15 +185,15 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     //Función para actualizar los datos del usuario en el Navheader
     private fun actualizarDatosUsuarios(email: String?, idDieta: String?){
         val mail = email.toString()
-        val docRef = db.collection("nutricionistas").document(mail)
+        val mailNutricionista = db.collection("nutricionistas").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
@@ -206,18 +207,18 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     val txtNutridietas = findViewById<TextView>(R.id.txt_verdieta)
                     txtNutridietas.text = "${idDieta} "
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta( "Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
     //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)
@@ -226,6 +227,7 @@ class VerDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         dialog.show()
     }
 
+    //Función que actualiza la interfaz cuando se borra una dieta
     override fun onItemDeleted() {
         //Si borramos una dieta volvemos a NutriDietasActivity
         val volverIntent: Intent = Intent(this, NutriDietasActivity::class.java).apply {

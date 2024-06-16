@@ -23,9 +23,11 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
 
+    //Variables del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
+    //Variables para el ListView de las dietas
     private lateinit var dietasUsuarioAdapter: ArrayAdapter<String>
     private val dietasList = arrayListOf<String>()
 
@@ -47,33 +49,35 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         val navigationView: NavigationView = findViewById(R.id.nav_view_misdietas)
         navigationView.setNavigationItemSelectedListener(this)
 
+        //Recuperamos el mail del usuario
         val bundle = intent.extras
         val email: String?  = bundle?.getString("mail")
 
         setup(email.toString())
         }
 
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?){
         try {
             actualizarDatosUsuarios(email.toString())
         }catch (e: Exception){
-            showAlert("Error al actualizar datos: ${e.message}")
+            mostrarAlerta("Error al actualizar datos: ${e.message}")
         }
 
         try {
             cargarDietas(email.toString())
         }catch (e: Exception){
-            showAlert("Error al cargar dietas: ${e.message}")
+            mostrarAlerta("Error al cargar dietas: ${e.message}")
         }
 
         val listViewDietas: ListView = findViewById(R.id.listViewDietasUsuario)
-        //Se obtienen las dietas del usuario
+        //Obtenemos las dietas del usuario
         dietasUsuarioAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dietasList)
         listViewDietas.adapter = dietasUsuarioAdapter
 
         //Si pulsamos en una dieta, nos lleva a la actividad de ver dieta pasándole el id de la dieta
         listViewDietas.setOnItemClickListener { parent, view, position, id ->
-            val idDieta = dietasList[position]  // Obtén el id de la dieta clickeada
+            val idDieta = dietasList[position]  //Obtenemos el id de la dieta seleccionada
             val verDietaintent = Intent(this, VerDietaUsuarioActivity::class.java)
             verDietaintent.putExtra("idDieta", idDieta)  // Pasamos el id de la dieta
             verDietaintent.putExtra("mail", email) //Pasamos el mail del usuario
@@ -83,6 +87,7 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     }
 
+    //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_home_one -> {
@@ -114,13 +119,14 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert( "Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta( "Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -138,16 +144,17 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         return super.onOptionsItemSelected(item)
     }
 
+    //Función que actualiza los datos del usuario en el Navheader
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("usuarios").document(mail)
+        val mailUsuario = db.collection("usuarios").document(mail)
 
         try {
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailUsuario.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_usuarios_nombre)
@@ -157,29 +164,33 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtMisDietas = findViewById<TextView>(R.id.txt_misdietas)
                     txtMisDietas.text = "¡Bienvenido a tus dietas ${nombre}! "
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
+    //Función que carga las dietas del usuario
     private fun cargarDietas(mail: String) {
-        dietasList.clear()  // Limpiar la lista anterior de dietas
+        //Limpiamos la lista de dietas
+        dietasList.clear()
+
+        //Obtenemos las dietas del usuario y las cargamos en la lista
         FirebaseFirestore.getInstance().collection("usuarios")
             .document(mail)
             .collection("dietas")
             .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val dietaId = document.id
+            .addOnSuccessListener { documentos ->
+                for (documento in documentos) {
+                    val dietaId = documento.id
                     dietasList.add(dietaId)
                 }
                 dietasUsuarioAdapter.notifyDataSetChanged()
@@ -189,8 +200,8 @@ class MisDietasActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }
     }
 
-    //Función que muestra un mensaje de alerta
-    private fun showAlert(mensaje: String){
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

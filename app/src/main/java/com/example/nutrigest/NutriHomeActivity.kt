@@ -19,9 +19,11 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelectedListener {
+    //Variables del menú lateral
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
+    //Instancia de la base de datos
     val db = FirebaseFirestore.getInstance()
 
     @SuppressLint("WrongViewCast")
@@ -42,18 +44,23 @@ class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemS
         val navigationView: NavigationView = findViewById(R.id.nav_view_nutricionistas)
         navigationView.setNavigationItemSelectedListener(this)
 
+        //Recuperamos el mail del nutricionista
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
         setup(mail.toString())
     }
 
-    //Función que inicializa todos los elementos de la Activity
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?){
-        actualizarDatosUsuarios(email.toString())
+        try {
+            actualizarDatosUsuarios(email.toString())
+        }catch (e: Exception){
+            mostrarAlerta("Error al actualizar interfaz: ${e.message}")
+        }
     }
 
-    //Función que controla las funciones del menú lateral
+    //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -101,13 +108,14 @@ class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemS
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -128,15 +136,15 @@ class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemS
     //Función que actualiza los datos del usuario en la interfaz
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("nutricionistas").document(mail)
+        val mailNutricionista = db.collection("nutricionistas").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
@@ -146,21 +154,22 @@ class NutriHomeActivity : AppCompatActivity(),  NavigationView.OnNavigationItemS
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtNutrihome = findViewById<TextView>(R.id.txt_nutrihome)
                     txtNutrihome.text = "¡Bienvenido ${nombre}! "
                 } else {
-                   showAlert("No se encontraron datos")
+                   mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert("Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta("Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
-    private fun showAlert(mensaje: String){
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

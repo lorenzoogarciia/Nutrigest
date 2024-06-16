@@ -20,38 +20,41 @@ class SerNutricionistaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ser_nutricionista)
 
-        //Setup
+        //Función setup para inicializar los elementos de la Activity y su backend
         setup()
     }
 
     @SuppressLint("WrongViewCast")
     private fun setup() {
-        title = "Ser Nutricionista"
 
+        //Inicialización de los elementos visuales de la Activity
         val cmpMailNutricionista = findViewById<EditText>(R.id.cmp_email_nutricionista)
         val btnEnviarMail = findViewById<Button>(R.id.btn_enviar_mail)
         val btnVolver = findViewById<Button>(R.id.btn_volver)
 
+        //Funcionamiento del botón de volver
         btnVolver.setOnClickListener {
             val volverIntent = Intent(this, LoginActivity::class.java)
             startActivity(volverIntent)
             Toast.makeText(this, "Login", Toast.LENGTH_SHORT).show()
         }
 
+        //Funcionamiento del botón de enviar mail
         btnEnviarMail.setOnClickListener {
             val mailNutricionista = cmpMailNutricionista.text.toString()
 
             if (mailNutricionista.isEmpty()) {
-                showAlert("Por favor, ingrese un correo electrónico")
+                mostrarAlerta("Por favor, ingrese un correo electrónico")
             } else {
                 Thread {
                     try {
+                        //Si hay un email introducido, se envía el mail
                         enviarMail(mailNutricionista)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         runOnUiThread {
                             Log.e("ERROR", e.toString())
-                            showAlert("Error al enviar el mail: ${e.message}")
+                            mostrarAlerta("Error al enviar el mail: ${e.message}")
                         }
                     }
                 }.start()
@@ -61,10 +64,14 @@ class SerNutricionistaActivity : AppCompatActivity() {
 
     //Función para enviar correo
     private fun enviarMail(mailNutricionista: String) {
+        //Apis de nuestra cuenta de MailJet
         val apiKey = "bc5fc57f31b0b4843a71caa38f454bb3"
         val apiSecret = "f619471aeee88e1b151ade21f1fe6b6d"
 
-        val client = OkHttpClient()
+        //Cliente de OkHttp
+        val cliente = OkHttpClient()
+
+        //JSON con los datos del correo
         val json = """
         {
             "Messages":[
@@ -87,6 +94,7 @@ class SerNutricionistaActivity : AppCompatActivity() {
         }
     """.trimIndent()
 
+        //Petición de OkHttp a la API de MailJet
         val body = json.toRequestBody("application/json".toMediaTypeOrNull())
         val request = Request.Builder()
             .url("https://api.mailjet.com/v3.1/send")
@@ -95,27 +103,30 @@ class SerNutricionistaActivity : AppCompatActivity() {
             .addHeader("Content-Type", "application/json")
             .build()
 
+        //Envío de la petición en segundo plano
         Thread {
             try {
-                val response = client.newCall(request).execute()
+                val response = cliente.newCall(request).execute()
                 runOnUiThread {
                     if (response.isSuccessful) {
+                        //Si la petición es exitosa, se muestra un mensaje de éxito
                         Toast.makeText(this, "Mail enviado correctamente", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this, "Error al enviar el mail: ${response.message}", Toast.LENGTH_LONG).show()
+                        //Si la petición falla, se muestra un mensaje de error
+                        mostrarAlerta("Error al enviar el mail: ${response.message}")
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this, "Error al enviar el mail: ${e.message}", Toast.LENGTH_LONG).show()
+                    mostrarAlerta("Error al enviar el mail: ${e.message}")
                 }
             }
         }.start()
     }
 
-
-        fun showAlert(message: String){
+        //Función que muestra los mensajes de alerta
+        fun mostrarAlerta(message: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(message)

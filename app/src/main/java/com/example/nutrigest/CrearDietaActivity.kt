@@ -12,13 +12,10 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.nutrigest.clases.Alimentos
 import com.example.nutrigest.clases.Usuarios
@@ -53,18 +50,20 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val navigationView: NavigationView = findViewById(R.id.nav_view_creardieta)
         navigationView.setNavigationItemSelectedListener(this)
 
+        //Recuperamos el mail del nutricionista
         val bundle = intent.extras
         val email: String?  = bundle?.getString("mail")
 
         setup(email.toString())
     }
 
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?) {
         //Actualizamos los datos del usuario en la interfaz
         try {
             actualizarDatosUsuarios(email.toString())
         } catch (e: Exception) {
-            showAlert("Error al cargar datos: ${e.message}")
+            mostrarAlerta("Error al cargar datos: ${e.message}")
         }
 
         //Inicialización de los botones de la interfaz
@@ -81,7 +80,7 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val usuariosSpinner: Spinner = findViewById(R.id.spinnerUsuarios)
 
 
-        // Cargar alimentos
+        //Variable de la lista de alimentos
         val alimentosList = arrayListOf<Alimentos>()
 
         //Funciones para que los spinners muestren solo el nombre de los alimentos
@@ -100,10 +99,10 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         }
         alimentosSpinner.adapter = alimentosAdapter
 
-        // Cargar usuarios
+        // Cargamos los usuarios en el spinner
         val usuariosList = arrayListOf<Usuarios>()
 
-        //Funciones para que los spinners muestren solo el nombre de los alimentos
+        //Funciones para que los spinners muestren solo el nombre de los usuarios
         val usuariosAdapter = object : ArrayAdapter<Usuarios>(this, R.layout.spinner_creardieta, usuariosList) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
@@ -120,23 +119,23 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         usuariosSpinner.adapter = usuariosAdapter
 
 
-        // Cargar alimentos desde Firestore al Spinner
+        //Obtenemos los alimentos de la base de datos y los añadimos a la lista
         FirebaseFirestore.getInstance().collection("alimentos")
             .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val alimento = document.toObject(Alimentos::class.java)
+            .addOnSuccessListener { documentos ->
+                for (documento in documentos) {
+                    val alimento = documento.toObject(Alimentos::class.java)
                     alimentosList.add(alimento)
                 }
                 alimentosAdapter.notifyDataSetChanged()
             }
 
-        // Cargar usuarios desde Firestore al Spinner
+        //Obtenemos los usuarios de la base de datos y los añadimos a la lista
         FirebaseFirestore.getInstance().collection("usuarios")
             .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val usuario = document.toObject(Usuarios::class.java)
+            .addOnSuccessListener { documentos ->
+                for (documento in documentos) {
+                    val usuario = documento.toObject(Usuarios::class.java)
                     usuariosList.add(usuario)
                 }
                 usuariosAdapter.notifyDataSetChanged()
@@ -197,13 +196,13 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         //Funcionalidad del botón crear dieta
         btnGuardarDieta.setOnClickListener {
-            // Obtener el usuario seleccionado
+            // Obtenemos el usuario seleccionado
             val usuarioSeleccionado = usuariosSpinner.selectedItem as Usuarios
 
             //Creamos id de la dieta para el usuario Seleccionado
             val idDieta = usuarioSeleccionado.crearIdDieta(usuarioSeleccionado.nombre)
 
-            // Guardar la dieta en Firestore bajo el usuario seleccionado
+            // Guardamos la dieta en la base de datos al usuario seleccionado
             FirebaseFirestore.getInstance().collection("usuarios")
                 .document(usuarioSeleccionado.mail)
                 .collection("dietas")
@@ -212,6 +211,9 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 .addOnSuccessListener {
                     Toast.makeText(this, "$idDieta guardada correctamente", Toast.LENGTH_SHORT).show()
                 }
+                .addOnFailureListener { e ->
+                    mostrarAlerta("Error al guardar dieta: ${e.message}")
+                }
         }
     }
 
@@ -219,15 +221,15 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     @SuppressLint("SetTextI18n")
     private fun actualizarDatosUsuarios(email: String){
         val mail = email
-        val docRef = db.collection("nutricionistas").document(mail)
+        val mailNutricionista = db.collection("nutricionistas").document(mail)
 
         try {
 
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
+            mailNutricionista.get().addOnSuccessListener { documento ->
+                if (documento != null) {
                     //Variables que recogen los datos de la base de datos
-                    val nombre = document.getString("nombre")
-                    val mail = document.getString("mail")
+                    val nombre = documento.getString("nombre")
+                    val mail = documento.getString("mail")
 
                     //Variables que actualizan los datos en la interfaz del Navheader
                     val nombreUI = findViewById<TextView>(R.id.navheader_nutricionistas_name)
@@ -237,21 +239,21 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtCrearDieta = findViewById<TextView>(R.id.txt_creardieta)
                     txtCrearDieta.text = "¡Bienvenido a la herramienta para crear Dietas, ${nombre}!"
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta( "Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
-    //Función con la que manejamos los botones del menú lateral
+    //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -303,13 +305,14 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -328,7 +331,7 @@ class CrearDietaActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     }
 
     //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

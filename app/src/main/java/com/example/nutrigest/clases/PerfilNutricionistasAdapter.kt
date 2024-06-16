@@ -1,5 +1,6 @@
 package com.example.nutrigest.clases
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ class PerfilNutricionistasAdapter(private var datosNutricionista: List<String>) 
 
     override fun getItemCount() = datosNutricionista.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun actualizarDatos(nuevosUsuarios: List<String>) {
         datosNutricionista = nuevosUsuarios
         notifyDataSetChanged()

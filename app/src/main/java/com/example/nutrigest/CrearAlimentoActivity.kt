@@ -8,13 +8,10 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -26,7 +23,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
-    //Instancia de la base de datos de Firebase
+    //Instancia de la base de datos
     private val db = FirebaseFirestore.getInstance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,18 +42,20 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         val navigationView: NavigationView = findViewById(R.id.nav_view_crearalimento)
         navigationView.setNavigationItemSelectedListener(this)
 
+        //Recuperamos el mail del nutricionista
         val bundle = intent.extras
         val mail: String?  = bundle?.getString("mail")
 
         setup(mail.toString())
     }
 
+    //Función que inicializa todos los elementos de la Activity y su backend
     private fun setup(email: String?){
         try {
             //Función que actualiza los datos de la UI
             actualizarDatosUsuarios(email.toString())
         }catch (e: Exception){
-            showAlert("Error al cargar los datos: ${e.message}")
+            mostrarAlerta("Error al cargar los datos: ${e.message}")
         }
 
         //Inicialización de los elementos de la Activity
@@ -73,7 +72,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         val cmpFibra = findViewById<TextView>(R.id.cmp_fibra_alimento)
         val cmpSal = findViewById<TextView>(R.id.cmp_sal_alimento)
 
-        //Lógica de los botones
+        //Lógica del botón Volver
         btnVolver.setOnClickListener {
             val alimentosIntent = Intent(this, AlimentosActivity::class.java).apply {
                 putExtra("mail", email)
@@ -82,6 +81,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             Toast.makeText(this, "Alimentos", Toast.LENGTH_SHORT).show()
         }
 
+        //Lógica del botón Crear Alimento
         btnCrearAlimento.setOnClickListener {
             try {
                 //Guardamos las variables que son datos numericos
@@ -96,11 +96,11 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 val fibra = cmpFibra.text.toString().toDoubleOrNull() ?: 0.0
                 val sal = cmpSal.text.toString().toDoubleOrNull() ?: 0.0
 
-                //Comprobamos que los campos Mail y Contraseña no estén vacíos
+                //Comprobamos que los campos Nombre y Calorías no estén vacíos
                 if (cmpNombre.text.toString().isNotEmpty() && cmpCalorias.text.toString().isNotEmpty()){
 
                     //Recogemos los datos de los campos y los guardamos en un HashMap
-                    val alimentoData = hashMapOf(
+                    val datosAlimento = hashMapOf(
                         "nombre" to nombre,
                         "cantidad" to cantidad,
                         "calorias" to calorias,
@@ -113,24 +113,24 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                         "sal" to sal)
 
                     //Guardamos los datos en la base de datos
-                    db.collection("alimentos").document(nombre).set(alimentoData)
-                        .addOnSuccessListener { document ->
+                    db.collection("alimentos").document(nombre).set(datosAlimento)
+                        .addOnSuccessListener { documento ->
                             Toast.makeText(this, "Alimento guardado correctamente", Toast.LENGTH_SHORT).show()
                         }
                         .addOnFailureListener { e ->
-                            showAlert("Error al guardar el alimento: ${e.message}")
+                            mostrarAlerta("Error al guardar el alimento: ${e.message}")
                         }
 
                 }else{
-                    showAlert("Por favor, rellene todos los campos")
+                    mostrarAlerta("Por favor, rellene todos los campos")
                 }
             }catch (e: FirebaseAuthException){
-                showAlert("Error al crear el alimento: ${e.message}")
+                mostrarAlerta("Error al crear el alimento: ${e.message}")
             }
         }
     }
 
-    //Función que actualiza los datos de la UI
+    //Función que actualiza los datos de la interfaz
     @SuppressLint("SetTextI18n")
     private fun actualizarDatosUsuarios(mail: String){
         val mail = mail
@@ -152,20 +152,21 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                     nombreUI.text = nombre
                     emailUI.text = mail
 
-                    //Actualización de los datos en la interfaz del HomeActivity
+                    //Actualización del mensaje de bienvenida
                     val txtNutriPerfil = findViewById<TextView>(R.id.txt_crearalimento)
                     txtNutriPerfil.text = "¡Bienvenido al formulario para crear Alimentos ${nombre}!"
                 } else {
-                    showAlert("No se encontraron datos")
+                    mostrarAlerta("No se encontraron datos")
                 }
             }.addOnFailureListener { exception ->
-                showAlert("Error al obtener datos: $exception")
+                mostrarAlerta("Error al obtener datos: $exception")
             }
         }catch (FireBaseException: Exception){
-            showAlert( "Error al Actualizar UI: ${FireBaseException.message}")
+            mostrarAlerta( "Error al Actualizar UI: ${FireBaseException.message}")
         }
     }
 
+    //Función que controla los botones del menú lateral
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_nutrihome_one -> {
@@ -215,13 +216,14 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                     startActivity(loginIntent)
                     Toast.makeText(this, "Sesión Cerrada Correctamente", Toast.LENGTH_SHORT).show()
                 }catch (e: FirebaseAuthException){
-                    showAlert("Error al cerrar sesión: ${e.message}")
+                    mostrarAlerta("Error al cerrar sesión: ${e.message}")
                 }
             }
         }
         return true
     }
 
+    //Funciones para el menú lateral
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         toggle.syncState()
@@ -240,7 +242,7 @@ class CrearAlimentoActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     }
 
     //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

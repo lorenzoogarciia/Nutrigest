@@ -21,12 +21,11 @@ class RegistroActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro)
 
-        //Setup
+        //Función setup para inicializar los elementos de la Activity y su backend
         setup()
     }
 
     private fun setup() {
-        title = "Registro"
 
         //Inicialización de Elementos en Pantalla
         val cmpMail = findViewById<EditText>(R.id.cmp_email)
@@ -48,9 +47,8 @@ class RegistroActivity : AppCompatActivity() {
             R.array.opciones_actividad,
             R.layout.spinner_registro
         ).also { adapter ->
-            // Especificar el layout a usar cuando aparece la lista de opciones
+            //Configuración del Spinner
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Aplicar el adaptador al spinner
             spinnerActividad.adapter = adapter
         }
 
@@ -59,18 +57,18 @@ class RegistroActivity : AppCompatActivity() {
             R.array.opciones_genero,
             R.layout.spinner_genero
         ).also { adapter ->
-            // Especificar el layout a usar cuando aparece la lista de opciones
+            // Configuración del Spinner
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Aplicar el adaptador al spinner
             spinnerGenero.adapter = adapter
         }
 
-
+        //Funcionamiento del botón de volver
         btnVolver.setOnClickListener {
             val loginIntent = Intent(this, LoginActivity::class.java)
             startActivity(loginIntent)
         }
 
+        //Funcionamiento del botón de guardar usuario
         btnGuardar.setOnClickListener {
             try {
                 //Guardamos las variables que son datos numericos
@@ -85,10 +83,10 @@ class RegistroActivity : AppCompatActivity() {
                     //Recogemos la instancia de la BBDD y creamos el usuario para la autenticación
                     FirebaseAuth.getInstance()
                         .createUserWithEmailAndPassword(cmpMail.text.toString(),cmpContrasenia.text.toString())
-                        .addOnCompleteListener(this) {task ->
+                        .addOnCompleteListener(this) {crearUsario ->
 
                             //Usuario creado correctamente, procedemos con el almacenamiento en la BBDD
-                            if (task.isSuccessful){
+                            if (crearUsario.isSuccessful){
                                 db.collection("usuarios").document(cmpMail.text.toString()).set(
                                     hashMapOf(
                                         "mail" to cmpMail.text.toString(),
@@ -107,20 +105,21 @@ class RegistroActivity : AppCompatActivity() {
                                 //Mostramos un mensaje de éxito
                                 Toast.makeText(this, "Usuario registrado correctamente", Toast.LENGTH_SHORT).show()
                             }else{
-                                showAlert("No se ha podido registrar al usuario para la autenticación")
+                                mostrarAlerta("No se ha podido registrar al usuario para la autenticación")
                             }
                         }
 
                 }else{
-                    showAlert("Por favor, rellene todos los campos")
+                    mostrarAlerta("Por favor, rellene todos los campos")
                 }
             }catch (e: FirebaseAuthException){
-                showAlert("Error al registrar al usuario: ${e.message}")
+                mostrarAlerta("Error al registrar al usuario: ${e.message}")
             }
         }
     }
 
-    private fun showAlert(mensaje: String){
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Error")
         builder.setMessage(mensaje)

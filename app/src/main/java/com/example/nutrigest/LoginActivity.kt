@@ -45,6 +45,7 @@ class LoginActivity : AppCompatActivity() {
             Toast.makeText(this, "Registro", Toast.LENGTH_SHORT).show()
         }
 
+        //Funcionamiento del botón que nos lleva a la Activity de ser nutricionista
         btnSerNutricionista.setOnClickListener {
             val serNutricionistaIntent = Intent(this, SerNutricionistaActivity::class.java)
             startActivity(serNutricionistaIntent)
@@ -65,19 +66,18 @@ class LoginActivity : AppCompatActivity() {
                                 //Verificamos que el usuario esté creado
                             if(it.isSuccessful){
                                 val mail = it.result?.user?.email ?: ""
-                                Log.d("LoginActivity", "Usuario autenticado: $mail")
                                 validarRolUsuario(mail)
                             }else{
-                                showAlert("Por favor, revise sus credenciales")
+                                mostrarAlerta("Por favor, revise sus credenciales")
                             }
                         }
                 }else{
                     //Si los campos están vacíos lanzamos un mensaje de alerta
-                    showAlert("Por favor, rellene todos los campos")
+                    mostrarAlerta("Por favor, rellene todos los campos")
                 }
             }catch (e: FirebaseAuthException){
                 //Capturamos la excepción y la mostramos por pantalla en caso de error
-                showAlert("Error de autenticación: ${e.stackTraceToString()}")
+                mostrarAlerta("Error de autenticación: ${e.stackTraceToString()}")
             }
         }
     }
@@ -90,16 +90,6 @@ class LoginActivity : AppCompatActivity() {
         startActivity(homeIntent)
     }
 
-    //Función que muestra los mensajes de alerta
-    private fun showAlert(mensaje: String){
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Error")
-        builder.setMessage(mensaje)
-        builder.setPositiveButton("Aceptar", null)
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
-    }
-
     //Función que muestra el home de los "nutricionistas"
     private fun showNutriHome(mail: String){
         val nutriHomeIntent = Intent(this,NutriHomeActivity::class.java).apply {
@@ -108,28 +98,39 @@ class LoginActivity : AppCompatActivity() {
         startActivity(nutriHomeIntent)
     }
 
+
+
     //Función que valida si el usuario es "usuario" o nutricionista
     private fun validarRolUsuario(mail: String?){
-        db.collection("nutricionistas").whereEqualTo("mail",mail.toString()).get().addOnSuccessListener { documents ->
-            if (documents != null && !documents.isEmpty){
+        db.collection("nutricionistas").whereEqualTo("mail",mail.toString()).get().addOnSuccessListener { documento ->
+            if (documento != null && !documento.isEmpty){
                 //El usuario es nutricionista
                 showNutriHome(mail.toString())
             }else{
-                //Verificar si el usuario es común
-                db.collection("usuarios").whereEqualTo("mail",mail.toString()).get().addOnSuccessListener { userDocuments ->
-                    if (userDocuments != null && !userDocuments.isEmpty){
-                        //El usuario es común
+                //Verificamos si el usuario está en la colección
+                db.collection("usuarios").whereEqualTo("mail",mail.toString()).get().addOnSuccessListener { documento ->
+                    if (documento != null && !documento.isEmpty){
+                        //El usuario está en la colección
                         showHome(mail.toString())
                     }else{
                         //Si el usuario no se encuentra en ninguna de las dos colecciones
-                        showAlert("El usuario no se encuentra en la Base de Datos")
+                        mostrarAlerta("El usuario no se encuentra en la Base de Datos")
                     }
                 }.addOnFailureListener { exception ->
-                    showAlert("Error al verificar el tipo de usuario: ${exception.message}")
+                    mostrarAlerta("Error al verificar el tipo de usuario: ${exception.message}")
                 }
             }
         }
+    }
 
+    //Función que muestra los mensajes de alerta
+    private fun mostrarAlerta(mensaje: String){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Error")
+        builder.setMessage(mensaje)
+        builder.setPositiveButton("Aceptar", null)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
 }
